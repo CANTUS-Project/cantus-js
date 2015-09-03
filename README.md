@@ -6,13 +6,13 @@ It's a simple shim JavaScript library for accessing a Cantus API server.
 CantusJS is copyrighted according to the GNU General Public Licence, version 3.
 
 Compatibility
-=============
+-------------
 
 For now, CantusJS is only compatible with Firefox 29+, Chrome 32+, Opera 19+, Safari 7.1+, and
 Microsoft Edge. Therefore, it's only suitable for testing, for now.
 
 How to Use CantusJS
-===================
+-------------------
 
 Copy the "cantus.js" file to your web server.
 
