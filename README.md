@@ -3,7 +3,13 @@ CantusJS
 
 It's a simple shim JavaScript library for accessing a Cantus API server.
 
-CantusJS is copyrighted according to the GNU General Public Licence, version 3.
+License
+-------
+
+*CantusJS* is copyrighted according to the terms of the GNU GPLv3+. A copy of the license is held in
+the file called "LICENSE." This means that you must provide end users with a means to access the
+library's source code. If you are using the *Abbot* Cantus API server, remember you must also
+provide a means to access that application's source code.
 
 Compatibility
 -------------
