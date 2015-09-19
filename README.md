@@ -1,7 +1,7 @@
 CantusJS
 ========
 
-It's a simple shim JavaScript library for accessing a Cantus API server.
+It's a simple JavaScript library for accessing a Cantus API server.
 
 License
 -------
