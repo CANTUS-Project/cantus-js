@@ -224,7 +224,8 @@ Cantus.prototype._getHateoas = function() {
         this._hateoasReject = reject;
     }.bind(this));
     this.ready = this._hateoasPromise;
-    this._submitAjax('GET', this.serverUrl, null, this._loadHateoas);
+    // NOTE: must call this from "cantusModule" so the unit tests can mock it
+    cantusModule._submitAjax('GET', this.serverUrl, null, this._loadHateoas);
 };
 
 Cantus.prototype._loadHateoas = function(event) {
@@ -290,6 +291,8 @@ Cantus.prototype._loadSearch = function(event) {
 };
 
 
+var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax};
+
 // TODO: decide whether I need this next line...
-window.Cantus = Cantus;
-// export default _cantus;
+// window.Cantus = Cantus;
+export default cantusModule;
