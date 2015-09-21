@@ -49,6 +49,38 @@ const _ROOT_URL_FAILURE = 'CantusJS: Root URL request failed with code ';
 var _currentThis = null;
 
 
+function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortListener) {
+    // This function submits the AJAX requests. It's separated here so the actual functions used
+    // for the request is abstracted, and to allow easier mocking in unit tests.
+    //
+    // Params:
+    // - httpMethod (str) The HTTP method for the request.
+    // - url (str) The URL for the request.
+    // - data (str) The request body, or "null".
+    // - loadListener (func) A function to call when the request finishes.
+    // - errorListener (func) A function to call if the request errors.
+    // - abortListener (func) A function to call if the reqeust aborts.
+    //
+    // Returns:
+    // Nothing. However, one of the "listener" functions will be called.
+
+    var xhr = new XMLHttpRequest();
+    xhr.addEventListener('load', loadListener);
+    if (undefined !== errorListener) {
+        xhr.addEventListener('error', errorListener);
+    }
+    if (undefined !== abortListener) {
+        xhr.addEventListener('abort', abortListener);
+    }
+    xhr.open(httpMethod, url);
+    if (null !== data) {
+        xhr.send(data);
+    } else {
+        xhr.send();
+    }
+};
+
+
 // the "Cantus" object itself
 var Cantus = function (serverUrl) {
     _currentThis = this;
@@ -184,37 +216,6 @@ Cantus.prototype.search = function(args) {
 
 // Cantus object's private methods
 // ===============================
-Cantus.prototype._submitAjax = function(httpMethod, url, data, loadListener, errorListener, abortListener) {
-    // This function submits the AJAX requests. It's separated here so the actual functions used
-    // for the request is abstracted, and to allow easier mocking in unit tests.
-    //
-    // Params:
-    // - httpMethod (str) The HTTP method for the request.
-    // - url (str) The URL for the request.
-    // - data (str) The request body, or "null".
-    // - loadListener (func) A function to call when the request finishes.
-    // - errorListener (func) A function to call if the request errors.
-    // - abortListener (func) A function to call if the reqeust aborts.
-    //
-    // Returns:
-    // Nothing. However, one of the "listener" functions will be called.
-
-    var xhr = new XMLHttpRequest();
-    xhr.addEventListener('load', loadListener);
-    if (undefined !== errorListener) {
-        xhr.addEventListener('error', errorListener);
-    }
-    if (undefined !== abortListener) {
-        xhr.addEventListener('abort', abortListener);
-    }
-    xhr.open(httpMethod, url);
-    if (null !== data) {
-        xhr.send(data);
-    } else {
-        xhr.send();
-    }
-}
-
 Cantus.prototype._getHateoas = function() {
     // Load the root directory's HATEOAS information, required for other URLs.
     this._hateoasPromise = new Promise(function(resolve, reject) {
