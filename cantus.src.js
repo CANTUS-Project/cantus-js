@@ -49,6 +49,8 @@ const _ROOT_URL_FAILURE = 'CantusJS: Root URL request failed with code ';
 var _currentThis = null;
 
 
+// Module-level functions
+// ======================
 function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortListener) {
     // This function submits the AJAX requests. It's separated here so the actual functions used
     // for the request is abstracted, and to allow easier mocking in unit tests.
@@ -81,7 +83,55 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
 };
 
 
-// the "Cantus" object itself
+function HateoasError(message) {
+    // Raise this error when there's a HATEOAS-related problem, like no data can be loaded from the
+    // root URL, or you're asked to find a resource with a type the server doesn't know.
+    this.name = 'HateoasError';
+    this.message = message || 'HATEOAS-related error';
+    this.stack = (new Error()).stack;
+};
+HateoasError.prototype = Object.create(Error.prototype);
+HateoasError.prototype.constructor = HateoasError;
+
+
+function _findUrlFromType(type, hateoas, defaultAll) {
+    // Given a resource type and HATEOAS directory, find the server's URL for that type. If the URL
+    // can't be found, and the third parameter ("defaultAll") is omitted or evaluates to true, the
+    // URL for "all" types will be returned.
+    //
+    // Parameters:
+    // - type (str) the resource type to search for; may be singular or plural
+    // - hateaos (object) mapping from resource type to URL; provide browse- or search-specific obj
+    // - defaultAll (bool) whether to return the "all" URL if "type" cannot be found; defaults to true
+    //
+    // Raises:
+    // - HateoasError: when the resource type cannot be found, and either "all" cannot be found, or
+    //                 the "defaultAll" parameter evaluates to false
+    //
+    // Returns:
+    // The URL from the "hateoas" dict.
+
+    if ('undefined' === typeof defaultAll) {
+        defaultAll = true;
+    }
+
+    var requestUrl = hateoas[type];
+    if (requestUrl === undefined) {
+        requestUrl = hateoas[_typeSingularToPlural[type]];
+    }
+    if (requestUrl === undefined && defaultAll) {
+        requestUrl = hateoas['all'];
+    }
+    if (requestUrl === undefined) {
+        throw new HateoasError('Could not find a URL for "' + type + '" resources.');
+    } else {
+        return requestUrl;
+    }
+};
+
+
+// The "Cantus" Object
+// ===================
 var Cantus = function (serverUrl) {
     _currentThis = this;
     this.setServerUrl(serverUrl);
@@ -114,36 +164,21 @@ Cantus.prototype.setServerUrl = function(toThis) {
 };
 
 Cantus.prototype.get = function(args) {
+    // TODO: add support for "id" field
+
     // what we'll return
     var prom = new Promise(function(resolve, reject) {
         this._getResolve = resolve;
         this._getReject = reject;
     }.bind(this));
+
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(function() {
-        var xhr = new XMLHttpRequest();
-        xhr.addEventListener('load', this._loadGet);
+        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas.browse, true);
+        cantusModule._submitAjax('GET', requestUrl, null, this._loadGet);
         // TODO: add for "error" and "abort" events
-
-        // TODO: add support for "id" field
-        // get the URL
-        var type = 'all';
-        if ('string' === typeof args.type) {
-            type = args.type;
-        }
-        var requestUrl = this._hateoas.browse[type];
-        if (requestUrl === undefined) {
-            // maybe they submitted a singular "type", so we'll try to convert it
-            requestUrl = this._hateoas.browse[_typeSingularToPlural[type]];
-            if (requestUrl === undefined) {
-                // maybe it's just not valid
-                _getReject('CantusJS: unknown type: "' + type + '"');
-                return;
-            }
-        }
-        xhr.open('GET', requestUrl);
-        xhr.send();
     }.bind(this));
+
     // return the promise
     return prom;
 };
@@ -228,6 +263,7 @@ Cantus.prototype._getHateoas = function() {
     cantusModule._submitAjax('GET', this.serverUrl, null, this._loadHateoas);
 };
 
+// TODO: merge the three "load" functions with a common "parent function"
 Cantus.prototype._loadHateoas = function(event) {
     var xhr = event.target;
     if (200 != xhr.status) {
@@ -291,7 +327,8 @@ Cantus.prototype._loadSearch = function(event) {
 };
 
 
-var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax};
+var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
+                    _prepareSearchRequestBody: _prepareSearchRequestBody};
 
 // TODO: decide whether I need this next line...
 // window.Cantus = Cantus;

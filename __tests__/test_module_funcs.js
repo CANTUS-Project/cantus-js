@@ -92,3 +92,53 @@ describe('_loadHateoas()', function() {
         expect(cantus._hateoasReject).toBeCalled();
     });
 });
+
+describe('_findUrlFromType()', function() {
+    it('returns the URL when it is in the object (given as plural)', function() {
+        var cantusModule = require('../cantus');
+        var type = 'chants';
+        var hateoas = {'chants': 'http://chants'};
+        var expected = 'http://chants';
+
+        var actual = cantusModule._findUrlFromType(type, hateoas);
+
+        expect(actual).toBe(expected);
+    });
+
+    it('returns the URL when it is in the object (given as singular)', function() {
+        var cantusModule = require('../cantus');
+        var type = 'chant';
+        var hateoas = {'chants': 'http://chants'};
+        var expected = 'http://chants';
+
+        var actual = cantusModule._findUrlFromType(type, hateoas);
+
+        expect(actual).toBe(expected);
+    });
+
+    it('returns the "all" URL when initial is not in the object (defaultAll=true)', function() {
+        var cantusModule = require('../cantus');
+        var type = 'feasts';
+        var hateoas = {'chants': 'http://chants', 'all': 'http://all'};
+        var defaultAll = true;
+        var expected = 'http://all';
+
+        var actual = cantusModule._findUrlFromType(type, hateoas, defaultAll);
+
+        expect(actual).toBe(expected);
+    });
+
+    it('raises HateoasError when initial is not in the object (defaultAll=false)', function() {
+        var cantusModule = require('../cantus');
+        var type = 'feast';
+        var hateoas = {'chants': 'http://chants', 'all': 'http://all'};
+        var defaultAll = false;
+
+        try {
+            cantusModule._findUrlFromType(type, hateoas, defaultAll);
+            throw new Error('expected an exception');
+        } catch (exc) {
+            expect(exc.name).toBe('HateoasError');
+        }
+    });
+});
