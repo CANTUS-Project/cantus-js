@@ -188,3 +188,64 @@ describe('_prepareSearchRequestBody()', function() {
         }
     });
 });
+
+describe('_loadResponse', function() {
+    it('calls reject() when the response code is not 200', function() {
+        var cantusModule = require('../cantus');
+        var resolveMock = jest.genMockFn();
+        var rejectMock = jest.genMockFn();
+        var event = {target: {status: 404, statusText: 'not found'}};
+
+        cantusModule._loadResponse(event, resolveMock, rejectMock);
+
+        expect(resolveMock.mock.calls.length).toBe(0);
+        expect(rejectMock).toBeCalledWith('CantusJS: request failed (404 not found)');
+    });
+
+    it('calls resolve() when the response body decodes properly', function() {
+        var cantusModule = require('../cantus');
+        var resolveMock = jest.genMockFn();
+        var rejectMock = jest.genMockFn();
+        var event = {target: {status: 200, statusText: 'OK', response: '{"a":"b"}'}};
+
+        cantusModule._loadResponse(event, resolveMock, rejectMock);
+
+        expect(rejectMock.mock.calls.length).toBe(0);
+        expect(resolveMock).toBeCalledWith({'a': 'b'});
+    });
+
+    it('calls reject() when JSON.parse() throws a SyntaxError', function() {
+        var cantusModule = require('../cantus');
+        var resolveMock = jest.genMockFn();
+        var rejectMock = jest.genMockFn();
+        var event = {target: {status: 200, statusText: 'OK', response: '{"a":"b}'}};
+
+        cantusModule._loadResponse(event, resolveMock, rejectMock);
+
+        expect(resolveMock.mock.calls.length).toBe(0);
+        expect(rejectMock).toBeCalledWith('CantusJS: SyntaxError while parsing response.');
+    });
+
+    it('calls reject() and rethrows when JSON.parse() throws another error', function() {
+        var orig_global_JSON = global.JSON;
+
+        var cantusModule = require('../cantus');
+        global.JSON = {parse: jest.genMockFn()};
+        global.JSON.parse.mockImpl(function() { throw new Error('whatever, man') });
+        var resolveMock = jest.genMockFn();
+        var rejectMock = jest.genMockFn();
+        var event = {target: {status: 200, statusText: 'OK', response: '{"a":"b}'}};
+        var dumbWrapper = function() {
+            // We need this wrapper function because the expect().toThrow() construct is apparently
+            // so useless that it can't even pass arguments to the function under test.
+            cantusModule._loadResponse(event, resolveMock, rejectMock);
+        };
+
+        expect(dumbWrapper).toThrow();
+
+        expect(resolveMock.mock.calls.length).toBe(0);
+        expect(rejectMock).toBeCalledWith('CantusJS: Error while parsing response.');
+
+        global.JSON = orig_global_JSON;
+    });
+});

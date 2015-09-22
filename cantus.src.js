@@ -222,6 +222,39 @@ function _prepareSearchRequestBody(query) {
 };
 
 
+function _loadResponse(event, resolve, reject) {
+    // Given the "load" event from an XMLHttpRequest, and the resolve and reject functions of a
+    // Promise, try to parse the response body into a JavaScript object and submit it to the resolve
+    // function. If that fails, or if the XMLHttpReqeust response code was not 200, use the reject
+    // function.
+    //
+    // Parameters
+    // ==========
+    // - event (event) The XMLHttpRequest "load" event.
+    // - resolve (function) The "resolve" function for a Promise.
+    // - reject (function) The "reject" function for a Promise.
+
+    var xhr = event.target;
+    if (200 != xhr.status) {
+        var errMsg = 'CantusJS: request failed (' + xhr.status + ' ' + xhr.statusText + ')';
+        reject(errMsg);
+    } else {
+        try {
+            var data = JSON.parse(xhr.response);
+            resolve(data);
+        } catch (possibleError) {
+            if ('SyntaxError' === possibleError.name) {
+                var errMsg = 'CantusJS: SyntaxError while parsing response.';
+                reject(errMsg);
+            } else {
+                reject('CantusJS: ' + possibleError.name + ' while parsing response.');
+                throw possibleError;
+            }
+        }
+    }
+};
+
+
 // The "Cantus" Object
 // ===================
 var Cantus = function (serverUrl) {
@@ -310,16 +343,13 @@ Cantus.prototype.search = function(args) {
 Cantus.prototype._getHateoas = function() {
     // Load the root directory's HATEOAS information, required for other URLs.
     this._hateoasPromise = new Promise(function(resolve, reject) {
-        // TODO: move this Promise creation to _getHateoas() or else the server's URL can't be changed
         this._hateoasResolve = resolve;
         this._hateoasReject = reject;
     }.bind(this));
     this.ready = this._hateoasPromise;
-    // NOTE: must call this from "cantusModule" so the unit tests can mock it
     cantusModule._submitAjax('GET', this.serverUrl, null, this._loadHateoas);
 };
 
-// TODO: merge the three "load" functions with a common "parent function"
 Cantus.prototype._loadHateoas = function(event) {
     var xhr = event.target;
     if (200 != xhr.status) {
@@ -327,7 +357,7 @@ Cantus.prototype._loadHateoas = function(event) {
     } else {
         try {
             _currentThis._hateoas = JSON.parse(xhr.response).resources;
-            _currentThis._hateoasResolve();
+            _currentThis._hateoasResolve(); // TODO: move the "_hateoas-setting" bit to _hateoasResolve so that this can use _loadResponse()
         } catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
                 var errMsg = 'CantusJS: SyntaxError while parsing response from the root URL.';
@@ -341,51 +371,17 @@ Cantus.prototype._loadHateoas = function(event) {
 };
 
 Cantus.prototype._loadGet = function(event) {
-    var xhr = event.target;
-    if (200 != xhr.status) {
-        var errMsg = 'CantusJS: GET request failed (' + xhr.status + ' ' + xhr.statusText + ')';
-        _currentThis._getReject(errMsg);
-    } else {
-        try {
-            var data = JSON.parse(xhr.response);
-            _currentThis._getResolve(data);
-        } catch (possibleError) {
-            if ('SyntaxError' === possibleError.name) {
-                var errMsg = 'CantusJS: SyntaxError while parsing response from GET.';
-                _currentThis._getReject(errMsg);
-            } else {
-                _currentThis._getReject(possibleError.name);
-                throw possibleError;
-            }
-        }
-    }
+    cantusModule._loadResponse(event, cantus._getResolve, cantus._getReject);
 };
 
 Cantus.prototype._loadSearch = function(event) {
-    var xhr = event.target;
-    if (200 != xhr.status) {
-        var errMsg = 'CantusJS: SEARCH request failed (' + xhr.status + ' ' + xhr.statusText + ')';
-        _currentThis._searchReject(errMsg);
-    } else {
-        try {
-            var data = JSON.parse(xhr.response);
-            _currentThis._searchResolve(data);
-        } catch (possibleError) {
-            if ('SyntaxError' === possibleError.name) {
-                var errMsg = 'CantusJS: SyntaxError while parsing response from SEARCH.';
-                _currentThis._searchReject(errMsg);
-            } else {
-                _currentThis._searchReject(possibleError.name);
-                throw possibleError;
-            }
-        }
-    }
+    cantusModule._loadResponse(event, cantus._searchResolve, cantus._searchReject);
 };
 
 
 var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
                     _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
-                    _QueryError: QueryError};
+                    _QueryError: QueryError, _loadResponse: _loadResponse};
 
 // TODO: decide whether I need this next line...
 // window.Cantus = Cantus;
