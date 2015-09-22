@@ -47,3 +47,52 @@ describe('get()', function() {
         expect(actual instanceof Promise).toBe(true);
     });
 });
+
+describe('search()', function() {
+    it('works with a valid query', function() {
+        var cantusModule = require('../cantus');
+        cantusModule._submitAjax = jest.genMockFn();
+        cantusModule._findUrlFromType = jest.genMockFn();
+        cantusModule._findUrlFromType.mockReturnValue('fakeurl');
+        cantusModule._prepareSearchRequestBody = jest.genMockFn();
+        cantusModule._prepareSearchRequestBody.mockReturnValue('fakequery');
+        var args = {'type': 'chant', 'incipit': 'deus'};
+        var cantus = new cantusModule.Cantus('theserver');
+        cantus._hateoas = {'browse': 'some URLs and stuff'};
+        var resolveReady = null;
+        cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
+
+        var actual = cantus.search(args);
+
+        expect(cantusModule._prepareSearchRequestBody).toBeCalledWith(args);
+        expect(cantusModule._submitAjax).toBeCalledWith('SEARCH', 'fakeurl', 'fakequery', cantus._loadSearch);
+        expect(cantusModule._findUrlFromType).toBeCalledWith('chant', cantus._hateoas.browse, true);
+        expect(typeof cantus._searchResolve).toBe('function');
+        expect(typeof cantus._searchReject).toBe('function');
+        expect(actual instanceof Promise).toBe(true);
+    });
+
+    it('rejects the Promise with an invalid query', function() {
+        var cantusModule = require('../cantus');
+        cantusModule._submitAjax = jest.genMockFn();
+        cantusModule._findUrlFromType = jest.genMockFn();
+        cantusModule._findUrlFromType.mockReturnValue('fakeurl');
+        cantusModule._prepareSearchRequestBody = jest.genMockFn();
+        cantusModule._prepareSearchRequestBody.mockImpl(function() {throw new cantusModule._QueryError()});
+        var args = {'type': 'chant', 'cats': '"they meow"'};
+        var cantus = new cantusModule.Cantus('theserver');
+        cantus._hateoas = {'browse': 'some URLs and stuff'};
+        var resolveReady = null;
+        cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
+
+        var actual = cantus.search(args);
+
+        // TODO: find a way to ensure the "actual" Promise was rejected...
+        //       I've confirmed it already informally, but how to test it consistently? Issue #8
+        expect(cantusModule._prepareSearchRequestBody).toBeCalledWith(args);
+        expect(cantusModule._submitAjax.mock.calls.length).toBe(1);  // only on initialization
+        expect(typeof cantus._searchResolve).toBe('function');
+        expect(typeof cantus._searchReject).toBe('function');
+        expect(actual instanceof Promise).toBe(true);
+    });
+});

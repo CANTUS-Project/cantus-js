@@ -142,3 +142,49 @@ describe('_findUrlFromType()', function() {
         }
     });
 });
+
+describe('_prepareSearchRequestBody()', function() {
+    it('works with no query arguments', function() {
+        var cantusModule = require('../cantus');
+        var query = {'type': 'chant'};
+        var expected = '{"query":""}';
+
+        var actual = cantusModule._prepareSearchRequestBody(query);
+
+        expect(actual).toBe(expected);
+    });
+
+    it('works with three regular query arguments', function() {
+        var cantusModule = require('../cantus');
+        var query = {'name': 'one', 'feast': '"item two"', 'date': 'three'};
+        // The output will literally include a backslash followed by a double-quote, because that's
+        // how it has to be encoded to a JSON string.
+        var expected = '{"query":"name:one feast:\\\"item two\\\" date:three"}';
+
+        var actual = cantusModule._prepareSearchRequestBody(query);
+
+        expect(actual).toBe(expected);
+    });
+
+    it('works with two regular args and "any"', function() {
+        var cantusModule = require('../cantus');
+        var query = {'name': 'one', 'feast': 'two', 'any': '"item three"'};
+        var expected = '{"query":"name:one feast:two \\\"item three\\\""}';
+
+        var actual = cantusModule._prepareSearchRequestBody(query);
+
+        expect(actual).toBe(expected);
+    });
+
+    it('throws QueryError with an unknown query field', function() {
+        var cantusModule = require('../cantus');
+        var query = {'name': 'one', 'backhoe': 'two', 'any': '"item three"'};
+
+        try {
+            cantusModule._prepareSearchRequestBody(query);
+            throw new Error('expected an exception');
+        } catch (exc) {
+            expect(exc.name).toBe('QueryError');
+        }
+    });
+});

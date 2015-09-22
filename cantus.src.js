@@ -23,6 +23,38 @@
 //-------------------------------------------------------------------------------------------------
 
 
+// This is a polyfill for the Array.includes() function. Copied from:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes
+if (!Array.prototype.includes) {
+    Array.prototype.includes = function(searchElement /*, fromIndex*/ ) {
+        'use strict';
+        var O = Object(this);
+        var len = parseInt(O.length) || 0;
+        if (len === 0) {
+            return false;
+        }
+        var n = parseInt(arguments[1]) || 0;
+        var k;
+        if (n >= 0) {
+            k = n;
+        } else {
+            k = len + n;
+            if (k < 0) {k = 0;}
+        }
+        var currentElement;
+        while (k < len) {
+            currentElement = O[k];
+            if (searchElement === currentElement ||
+                (searchElement !== searchElement && currentElement !== currentElement)) {
+                    return true;
+                }
+            k++;
+        }
+        return false;
+    };
+}
+
+
 const _typeSingularToPlural = {
     'siglum': 'sigla',
     'office': 'offices',
@@ -130,6 +162,66 @@ function _findUrlFromType(type, hateoas, defaultAll) {
 };
 
 
+function QueryError(message) {
+    // Raise this error when there's an error related to parsing a search query, and you want to
+    // tell the user about it.
+    this.name = 'QueryError';
+    this.message = message || 'query-related error';
+    this.stack = (new Error()).stack;
+};
+QueryError.prototype = Object.create(Error.prototype);
+QueryError.prototype.constructor = QueryError;
+
+
+function _prepareSearchRequestBody(query) {
+    // Given the "query" submitted by the user, validate the query and prepare the request body as
+    // it should be submitted to the Cantus API server.
+    //
+    // Parameters:
+    // - query (object) the "args" submitted to search()
+    //
+    // Raises:
+    // - QueryError: when the "query" contains invalid fields, or is invalid for another reason.
+    //
+    // Returns:
+    // The request body, ready for submission to the Cantus API server.
+
+    var validFields = ['id', 'name', 'description', 'mass_or_office', 'date', 'feast_code',
+        'incipit', 'source', 'marginalia', 'folio', 'sequence', 'office', 'genre', 'position',
+        'cantus_id', 'feast', 'mode', 'differentia', 'finalis', 'full_text',
+        'full_text_manuscript', 'full_text_simssa', 'volpiano', 'notes', 'cao_concordances',
+        'siglum', 'proofreader', 'melody_id', 'title', 'rism', 'provenance', 'century',
+        'notation_style', 'editors', 'indexers', 'summary', 'liturgical_occasion',
+        'indexing_notes', 'indexing_date', 'display_name', 'given_name', 'family_name',
+        'institution', 'city', 'country', 'source_id', 'office_id', 'genre_id', 'feast_id',
+        'provenance_id', 'century_id','notation_style_id', 'any', 'type'];
+
+    var queryStr = '';
+    for (var field in query) {
+        // NB: if we were using proper JavaScript Objects, that inherited members from a prototype,
+        //     we would need an additional check with hasOwnProperty()
+        if (validFields.includes(field)) {
+            if ('any' === field) {
+                queryStr += ' ' + query['any'];
+            } else if ('type' === field) {
+                // ignore "type"
+            } else {
+                queryStr += ' ' + field + ':' + query[field];
+            }
+        } else {
+            throw new QueryError('Invalid field in query: "' + field + '"');
+        }
+    }
+
+    // remove the leading space
+    if (queryStr.length > 1) {
+        queryStr = queryStr.slice(1);
+    }
+
+    return JSON.stringify({query: queryStr});
+};
+
+
 // The "Cantus" Object
 // ===================
 var Cantus = function (serverUrl) {
@@ -184,66 +276,30 @@ Cantus.prototype.get = function(args) {
 };
 
 Cantus.prototype.search = function(args) {
+
     // what we'll return
     var prom = new Promise(function(resolve, reject) {
         this._searchResolve = resolve;
         this._searchReject = reject;
     }.bind(this));
+
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(function() {
-        var xhr = new XMLHttpRequest();
-        xhr.addEventListener('load', this._loadSearch);
+        try {
+            var requestBody = cantusModule._prepareSearchRequestBody(args);
+        } catch (exc) {
+            if (exc instanceof QueryError) {
+                this._searchReject(exc.message);
+            } else {
+                this._searchReject('Unrecoverable error while parsing query');
+            }
+            return prom;
+        }
+        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas.browse, true);
+        cantusModule._submitAjax('SEARCH', requestUrl, requestBody, this._loadSearch);
         // TODO: add for "error" and "abort" events
-
-        // get the URL
-        var type = 'all';
-        if ('string' === typeof args.type) {
-            type = args.type;
-        }
-        var requestUrl = this._hateoas.browse[type];
-        if (requestUrl === undefined) {
-            // maybe they submitted a singular "type", so we'll try to convert it
-            requestUrl = this._hateoas.browse[_typeSingularToPlural[type]];
-            if (requestUrl === undefined) {
-                // maybe it's just not valid
-                _searchReject('CantusJS: unknown type: "' + type + '"');
-                return;
-            }
-        }
-
-        // prepare the request body
-        var requestBody = {query: ''};
-        if (args.query !== undefined) {
-            requestBody.query = args.query;
-        } else {
-            // check for all the supported fields in "args"
-            var query = '';
-            var validField = ['id', 'name', 'description', 'mass_or_office', 'date', 'feast_code',
-                'incipit', 'source', 'marginalia', 'folio', 'sequence', 'office', 'genre', 'position',
-                'cantus_id', 'feast', 'mode', 'differentia', 'finalis', 'full_text',
-                'full_text_manuscript', 'full_text_simssa', 'volpiano', 'notes', 'cao_concordances',
-                'siglum', 'proofreader', 'melody_id', 'title', 'rism', 'provenance', 'century',
-                'notation_style', 'editors', 'indexers', 'summary', 'liturgical_occasion',
-                'indexing_notes', 'indexing_date', 'display_name', 'given_name', 'family_name',
-                'institution', 'city', 'country', 'source_id', 'office_id', 'genre_id', 'feast_id',
-                'provenance_id', 'century_id','notation_style_id'];
-            for (i in validField) {
-                var field = validField[i];
-                if (args[field] !== undefined) {
-                    query += ' ' + field + ':' + args[field];
-                }
-            }
-            if (args['any'] !== undefined) {
-                query += ' ' + args['any'];
-            }
-
-            requestBody.query = query;
-        }
-
-        // send the request
-        xhr.open('SEARCH', requestUrl);
-        xhr.send(JSON.stringify(requestBody));
     }.bind(this));
+
     // return the promise
     return prom;
 };
@@ -328,7 +384,8 @@ Cantus.prototype._loadSearch = function(event) {
 
 
 var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
-                    _prepareSearchRequestBody: _prepareSearchRequestBody};
+                    _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
+                    _QueryError: QueryError};
 
 // TODO: decide whether I need this next line...
 // window.Cantus = Cantus;
