@@ -26,6 +26,10 @@ Add the following to your webpage:
 
     <script type="text/javascript" src="/path/to/cantus.js"></script>
 
+Initialize a new Cantus object with your server's URL:
+
+    var cantus = cantusjs.Cantus('http://abbott.adjectivenoun.ca:8888');
+
 Then scripts can call into the Cantus API like this:
 
     var searchParams = {type: 'chant', 'genre': 'antiphon', 'any': '"in domine"'};

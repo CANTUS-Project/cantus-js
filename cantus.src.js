@@ -371,11 +371,11 @@ Cantus.prototype._loadHateoas = function(event) {
 };
 
 Cantus.prototype._loadGet = function(event) {
-    cantusModule._loadResponse(event, cantus._getResolve, cantus._getReject);
+    cantusModule._loadResponse(event, _currentThis._getResolve, _currentThis._getReject);
 };
 
 Cantus.prototype._loadSearch = function(event) {
-    cantusModule._loadResponse(event, cantus._searchResolve, cantus._searchReject);
+    cantusModule._loadResponse(event, _currentThis._searchResolve, _currentThis._searchReject);
 };
 
 
@@ -383,6 +383,6 @@ var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: 
                     _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
                     _QueryError: QueryError, _loadResponse: _loadResponse};
 
-// TODO: decide whether I need this next line...
-// window.Cantus = Cantus;
+// TODO: find a better solution for this than commenting
+// window.cantusjs = cantusModule;
 export default cantusModule;
