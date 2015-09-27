@@ -199,7 +199,7 @@ describe('_loadResponse', function() {
         cantusModule._loadResponse(event, resolveMock, rejectMock);
 
         expect(resolveMock.mock.calls.length).toBe(0);
-        expect(rejectMock).toBeCalledWith('CantusJS: request failed (404 not found)');
+        expect(rejectMock).toBeCalledWith({code: 404, reason: 'not found', response: '404: not found'});
     });
 
     it('calls resolve() when the response body decodes properly', function() {
@@ -223,7 +223,8 @@ describe('_loadResponse', function() {
         cantusModule._loadResponse(event, resolveMock, rejectMock);
 
         expect(resolveMock.mock.calls.length).toBe(0);
-        expect(rejectMock).toBeCalledWith('CantusJS: SyntaxError while parsing response.');
+        expect(rejectMock).toBeCalledWith({code: 0, reason: 'internal error',
+                                           response: 'CantusJS: SyntaxError while parsing response.'});
     });
 
     it('calls reject() and rethrows when JSON.parse() throws another error', function() {
@@ -244,7 +245,8 @@ describe('_loadResponse', function() {
         expect(dumbWrapper).toThrow();
 
         expect(resolveMock.mock.calls.length).toBe(0);
-        expect(rejectMock).toBeCalledWith('CantusJS: Error while parsing response.');
+        expect(rejectMock).toBeCalledWith({code: 0, reason: 'internal error',
+                                           response: 'CantusJS: Error while parsing response.'});
 
         global.JSON = orig_global_JSON;
     });

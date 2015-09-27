@@ -233,21 +233,28 @@ function _loadResponse(event, resolve, reject) {
     // - event (event) The XMLHttpRequest "load" event.
     // - resolve (function) The "resolve" function for a Promise.
     // - reject (function) The "reject" function for a Promise.
+    //
+    // NOTE: for a description of the arguments given to the resolve and reject functions, refer to
+    // the get() function documentation.
 
     var xhr = event.target;
     if (200 != xhr.status) {
-        var errMsg = 'CantusJS: request failed (' + xhr.status + ' ' + xhr.statusText + ')';
-        reject(errMsg);
+        var errObj = {code: xhr.status, reason: xhr.statusText,
+                      response: xhr.status + ': ' + xhr.statusText};
+        reject(errObj);
     } else {
         try {
             var data = JSON.parse(xhr.response);
             resolve(data);
         } catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
-                var errMsg = 'CantusJS: SyntaxError while parsing response.';
-                reject(errMsg);
+                var errObj = {code: 0, reason: 'internal error',
+                              response: 'CantusJS: SyntaxError while parsing response.'};
+                reject(errObj);
             } else {
-                reject('CantusJS: ' + possibleError.name + ' while parsing response.');
+                var errObj = {code: 0, reason: 'internal error',
+                              response: 'CantusJS: ' + possibleError.name + ' while parsing response.'};
+                reject(errObj);
                 throw possibleError;
             }
         }
