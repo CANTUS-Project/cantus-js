@@ -251,3 +251,27 @@ describe('_loadResponse', function() {
         global.JSON = orig_global_JSON;
     });
 });
+
+describe('"abort" and "error" events for XMLHttpRequest', function() {
+    it('_abortRequest() calls its reject() function', function() {
+        var cantusModule = require('../cantus');
+        var mockEvent = '';
+        var mockReject = jest.genMockFn();
+        var expected = {code: 0, reason: 'Request aborted', response: 'The XMLHttpRequest was aborted.'};
+
+        cantusModule._abortRequest(mockEvent, mockReject);
+
+        expect(mockReject).toBeCalledWith(expected);
+    });
+
+    it('_errorRequest() calls its reject() function', function() {
+        var cantusModule = require('../cantus');
+        var mockEvent = '';
+        var mockReject = jest.genMockFn();
+        var expected = {code: 0, reason: 'Request errored', response: 'Error during the XMLHttpRequest.'};
+
+        cantusModule._errorRequest(mockEvent, mockReject);
+
+        expect(mockReject).toBeCalledWith(expected);
+    });
+});

@@ -261,6 +261,28 @@ function _loadResponse(event, resolve, reject) {
     }
 };
 
+function _abortRequest(event, reject) {
+    // Call this function when the XMLHttpRequest was aborted.
+    //
+    // Params
+    // ======
+    // - event (event) The DOM event given to the "cancel" event listener.
+    // - reject (function) The "reject" function of a Promise to call with the bad news.
+
+    reject({code: 0, reason: 'Request aborted', response: 'The XMLHttpRequest was aborted.'});
+};
+
+function _errorRequest(event, reject) {
+    // Call this function when there's an error during the XMLHttpRequest.
+    //
+    // Params
+    // ======
+    // - event (event) The DOM event given to the "error" event listener.
+    // - reject (function) The "reject" function of a Promise to call with the bad news.
+
+    reject({code: 0, reason: 'Request errored', response: 'Error during the XMLHttpRequest.'});
+};
+
 
 // The "Cantus" Object
 // ===================
@@ -307,8 +329,8 @@ Cantus.prototype.get = function(args) {
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(function() {
         var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas.browse, true);
-        cantusModule._submitAjax('GET', requestUrl, null, this._loadGet);
-        // TODO: add for "error" and "abort" events
+        cantusModule._submitAjax('GET', requestUrl, null, this._loadGet, this._errorGet,
+                                 this._abortGet);
     }.bind(this));
 
     // return the promise
@@ -336,8 +358,8 @@ Cantus.prototype.search = function(args) {
             return prom;
         }
         var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas.browse, true);
-        cantusModule._submitAjax('SEARCH', requestUrl, requestBody, this._loadSearch);
-        // TODO: add for "error" and "abort" events
+        cantusModule._submitAjax('SEARCH', requestUrl, requestBody, this._loadSearch,
+                                 this._errorSearch, this._abortSearch);
     }.bind(this));
 
     // return the promise
@@ -381,14 +403,31 @@ Cantus.prototype._loadGet = function(event) {
     cantusModule._loadResponse(event, _currentThis._getResolve, _currentThis._getReject);
 };
 
+Cantus.prototype._abortGet = function(event) {
+    cantusModule._abortRequest(event, _currentThis._getReject);
+};
+
+Cantus.prototype._errorGet = function(event) {
+    cantusModule._errorRequest(event, _currentThis._getReject);
+};
+
 Cantus.prototype._loadSearch = function(event) {
     cantusModule._loadResponse(event, _currentThis._searchResolve, _currentThis._searchReject);
+};
+
+Cantus.prototype._abortSearch = function(event) {
+    cantusModule._abortRequest(event, _currentThis._searchReject);
+};
+
+Cantus.prototype._errorSearch = function(event) {
+    cantusModule._errorRequest(event, _currentThis._searchReject);
 };
 
 
 var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
                     _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
-                    _QueryError: QueryError, _loadResponse: _loadResponse};
+                    _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
+                    _errorRequest: _errorRequest};
 
 // TODO: find a better solution for this than commenting
 // window.cantusjs = cantusModule;

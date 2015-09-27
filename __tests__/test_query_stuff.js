@@ -46,6 +46,48 @@ describe('get()', function() {
         expect(typeof cantus._getReject).toBe('function');
         expect(actual instanceof Promise).toBe(true);
     });
+
+    it('_loadGet() properly delegates to _loadResponse()', function() {
+        var cantusModule = require('../cantus');
+        cantusModule._submitAjax = jest.genMockFn();
+        cantusModule._loadResponse = jest.genMockFn();
+        var cantus = new cantusModule.Cantus('theserver');
+        cantus._getResolve = 5;
+        cantus._getReject = 6;
+        var mockEvent = 4;
+
+        cantus._loadGet(mockEvent);
+
+        expect(cantusModule._loadResponse).toBeCalledWith(4, 5, 6);
+    });
+
+    it('_abortGet() properly delegates to _abortRequest()', function() {
+        var cantusModule = require('../cantus');
+        cantusModule._submitAjax = jest.genMockFn();
+        cantusModule._abortRequest = jest.genMockFn();
+        var cantus = new cantusModule.Cantus('theserver');
+        cantus._getResolve = 5;
+        cantus._getReject = 6;
+        var mockEvent = 4;
+
+        cantus._abortGet(mockEvent);
+
+        expect(cantusModule._abortRequest).toBeCalledWith(4, 6);
+    });
+
+    it('_errorGet() properly delegates to _errorRequest()', function() {
+        var cantusModule = require('../cantus');
+        cantusModule._submitAjax = jest.genMockFn();
+        cantusModule._errorRequest = jest.genMockFn();
+        var cantus = new cantusModule.Cantus('theserver');
+        cantus._getResolve = 5;
+        cantus._getReject = 6;
+        var mockEvent = 4;
+
+        cantus._errorGet(mockEvent);
+
+        expect(cantusModule._errorRequest).toBeCalledWith(4, 6);
+    });
 });
 
 describe('search()', function() {
@@ -114,5 +156,47 @@ describe('search()', function() {
         expect(typeof cantus._searchResolve).toBe('function');
         expect(typeof cantus._searchReject).toBe('function');
         expect(actual instanceof Promise).toBe(true);
+    });
+
+    it('_loadSearch() properly delegates to _loadResponse()', function() {
+        var cantusModule = require('../cantus');
+        cantusModule._submitAjax = jest.genMockFn();
+        cantusModule._loadResponse = jest.genMockFn();
+        var cantus = new cantusModule.Cantus('theserver');
+        cantus._searchResolve = 5;
+        cantus._searchReject = 6;
+        var mockEvent = 4;
+
+        cantus._loadSearch(mockEvent);
+
+        expect(cantusModule._loadResponse).toBeCalledWith(4, 5, 6);
+    });
+
+    it('_abortSearch() properly delegates to _abortRequest()', function() {
+        var cantusModule = require('../cantus');
+        cantusModule._submitAjax = jest.genMockFn();
+        cantusModule._abortRequest = jest.genMockFn();
+        var cantus = new cantusModule.Cantus('theserver');
+        cantus._searchResolve = 5;
+        cantus._searchReject = 6;
+        var mockEvent = 4;
+
+        cantus._abortSearch(mockEvent);
+
+        expect(cantusModule._abortRequest).toBeCalledWith(4, 6);
+    });
+
+    it('_errorSearch() properly delegates to _errorRequest()', function() {
+        var cantusModule = require('../cantus');
+        cantusModule._submitAjax = jest.genMockFn();
+        cantusModule._errorRequest = jest.genMockFn();
+        var cantus = new cantusModule.Cantus('theserver');
+        cantus._searchResolve = 5;
+        cantus._searchReject = 6;
+        var mockEvent = 4;
+
+        cantus._errorSearch(mockEvent);
+
+        expect(cantusModule._errorRequest).toBeCalledWith(4, 6);
     });
 });
