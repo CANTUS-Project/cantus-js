@@ -84,11 +84,31 @@ describe('search()', function() {
         cantus._hateoas = {'browse': 'some URLs and stuff'};
         var resolveReady = null;
         cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
+        // This Promise is resolved when the "then" or "catch" function is triggered on the Promise
+        // returned by the function-under-test.
+        var testAccept = null;
+        var testPromise = new Promise(function(resolve, reject) { testAccept = resolve; });
 
         var actual = cantus.search(args);
+        actual
+            .then(function() { testAccept('then'); })
+            .catch(function() { testAccept('catch'); })
 
-        // TODO: find a way to ensure the "actual" Promise was rejected...
-        //       I've confirmed it already informally, but how to test it consistently? Issue #8
+        testPromise.then(function(calledFrom) {
+            // "calledFrom" tells us whether we're being called from the "then" function on the
+            // Promise returned by the function-under-test, or from the "catch" function on same.
+            // We hope to be called from the "catch" function.
+            //
+            // Unfortunately, we can't make the test fail at this point, but we can at least make
+            // sure we're called from the right function, and print a tough-to-ignore note if not.
+
+            if ('catch' !== calledFrom) {
+                console.log('\n!!!! HEY HEY HEY HEY HEY !!!!\n\nTEST ACTUALLY FAILED\n' +
+                            'LOOK IN THE testPromise.then() FUNCTION IN "rejects the Promise with an invalid query"\n' +
+                            'TEST ACTUALLY FAILED\n\n!!!! HEY HEY HEY HEY HEY !!!!\n');
+            }
+        });
+
         expect(cantusModule._prepareSearchRequestBody).toBeCalledWith(args);
         expect(cantusModule._submitAjax.mock.calls.length).toBe(1);  // only on initialization
         expect(typeof cantus._searchResolve).toBe('function');
