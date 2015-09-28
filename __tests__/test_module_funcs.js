@@ -275,3 +275,44 @@ describe('"abort" and "error" events for XMLHttpRequest', function() {
         expect(mockReject).toBeCalledWith(expected);
     });
 });
+
+describe('_addRequestHeaders()', function() {
+    it('works with no headers', function() {
+        var cantusModule = require('../cantus');
+        var mockXhr = {'setRequestHeader': jest.genMockFn()};
+        var args = {};
+
+        var actual = cantusModule._addRequestHeaders(mockXhr, args);
+
+        expect(actual).toBe(mockXhr);
+        expect(mockXhr.setRequestHeader.mock.calls.length).toBe(0);
+    });
+
+    it('works with one header', function() {
+        var cantusModule = require('../cantus');
+        var mockXhr = {'setRequestHeader': jest.genMockFn()};
+        var args = {'sort': 'functionality'};
+
+        var actual = cantusModule._addRequestHeaders(mockXhr, args);
+
+        expect(actual).toBe(mockXhr);
+        expect(mockXhr.setRequestHeader.mock.calls.length).toBe(1);
+        expect(mockXhr.setRequestHeader).toBeCalledWith('X-Cantus-Sort', 'functionality');
+    });
+
+    it('works with four headers', function() {
+        var cantusModule = require('../cantus');
+        var mockXhr = {'setRequestHeader': jest.genMockFn()};
+        var args = {'page': 'Wolfram', 'per_page': 'Bee Gees', 'sort': 'functionality',
+                    'fields': 'A ZedHang'};
+
+        var actual = cantusModule._addRequestHeaders(mockXhr, args);
+
+        expect(actual).toBe(mockXhr);
+        expect(mockXhr.setRequestHeader.mock.calls.length).toBe(4);
+        expect(mockXhr.setRequestHeader).toBeCalledWith('X-Cantus-Page', 'Wolfram');
+        expect(mockXhr.setRequestHeader).toBeCalledWith('X-Cantus-Per-Page', 'Bee Gees');
+        expect(mockXhr.setRequestHeader).toBeCalledWith('X-Cantus-Sort', 'functionality');
+        expect(mockXhr.setRequestHeader).toBeCalledWith('X-Cantus-Fields', 'A ZedHang');
+    });
+});

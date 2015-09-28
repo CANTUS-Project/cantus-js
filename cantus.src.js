@@ -83,6 +83,45 @@ var _currentThis = null;
 
 // Module-level functions
 // ======================
+function _addRequestHeaders(xhr, args) {
+    // Given an XMLHttpRequest instance and the "args" provided to get() or search(), add any HTTP
+    // headers to the XMLHttpRequest as required by the args. All unknown members in "args" are
+    // silently ignored.
+    //
+    // NOTE that this function does not currently verify supplied header values.
+    //
+    // Params:
+    // =======
+    // - xhr (XMLHttpRequest) The request to which to add HTTP headers.
+    // - args (Object) An object that may contain one of the header fields (see below).
+    //
+    // Returns:
+    // ========
+    // The XMLHttpRequest object, with headers.
+    //
+    // Supported Headers:
+    // ==================
+    // - X-Cantus-Page (from the "page" member)
+    // - X-Cantus-Per-Page (from the "per_page" member)
+    // - X-Cantus-Sort (from the "sort" member)
+    // - X-Cantus-Fields (from the "fields" member)
+
+    if (args['page']) {
+        xhr.setRequestHeader('X-Cantus-Page', args['page']);
+    }
+    if (args['per_page']) {
+        xhr.setRequestHeader('X-Cantus-Per-Page', args['per_page']);
+    }
+    if (args['sort']) {
+        xhr.setRequestHeader('X-Cantus-Sort', args['sort']);
+    }
+    if (args['fields']) {
+        xhr.setRequestHeader('X-Cantus-Fields', args['fields']);
+    }
+
+    return xhr;
+};
+
 function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortListener) {
     // This function submits the AJAX requests. It's separated here so the actual functions used
     // for the request is abstracted, and to allow easier mocking in unit tests.
@@ -427,7 +466,7 @@ Cantus.prototype._errorSearch = function(event) {
 var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
                     _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
                     _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
-                    _errorRequest: _errorRequest};
+                    _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders};
 
 // TODO: find a better solution for this than commenting
 // window.cantusjs = cantusModule;
