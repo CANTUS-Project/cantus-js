@@ -33,7 +33,8 @@ describe('the constructor', function() {
 
         var cantus = new cantusModule.Cantus('theserver');
 
-        expect(cantusModule._submitAjax).toBeCalledWith('GET', 'theserver', null, cantus._loadHateoas);
+        expect(cantusModule._submitAjax).toBeCalledWith('GET', 'theserver', {args: {}, body: null},
+                                                        cantus._loadHateoas);
     });
 });
 
@@ -62,7 +63,8 @@ describe('_getHateoas()', function() {
         cantus._getHateoas();
 
         expect(cantusModule._submitAjax.mock.calls.length).toBe(2); // first call is during init
-        expect(cantusModule._submitAjax).toBeCalledWith('GET', 'something', null, cantus._loadHateoas);
+        expect(cantusModule._submitAjax).toBeCalledWith('GET', 'something', {args: {}, body: null},
+                                                        cantus._loadHateoas);
     });
 });
 

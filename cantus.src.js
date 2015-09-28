@@ -127,17 +127,22 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
     // for the request is abstracted, and to allow easier mocking in unit tests.
     //
     // Params:
+    // =======
     // - httpMethod (str) The HTTP method for the request.
     // - url (str) The URL for the request.
-    // - data (str) The request body, or "null".
+    // - data (Object) An object with two members:
+    //     - args (Object) the "args" submitted to search() or get().
+    //     - body (str) The request body to submit; may be null.
     // - loadListener (func) A function to call when the request finishes.
     // - errorListener (func) A function to call if the request errors.
     // - abortListener (func) A function to call if the reqeust aborts.
     //
     // Returns:
+    // ========
     // Nothing. However, one of the "listener" functions will be called.
 
-    var xhr = new XMLHttpRequest();
+    var xhr = cantusModule._addRequestHeaders(new XMLHttpRequest(), data.args);
+
     xhr.addEventListener('load', loadListener);
     if (undefined !== errorListener) {
         xhr.addEventListener('error', errorListener);
@@ -146,8 +151,8 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
         xhr.addEventListener('abort', abortListener);
     }
     xhr.open(httpMethod, url);
-    if (null !== data) {
-        xhr.send(data);
+    if (null !== data.body) {
+        xhr.send(data.body);
     } else {
         xhr.send();
     }
@@ -368,8 +373,8 @@ Cantus.prototype.get = function(args) {
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(function() {
         var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas.browse, true);
-        cantusModule._submitAjax('GET', requestUrl, null, this._loadGet, this._errorGet,
-                                 this._abortGet);
+        cantusModule._submitAjax('GET', requestUrl, {args: args, body: null}, this._loadGet,
+                                 this._errorGet, this._abortGet);
     }.bind(this));
 
     // return the promise
@@ -397,8 +402,8 @@ Cantus.prototype.search = function(args) {
             return prom;
         }
         var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas.browse, true);
-        cantusModule._submitAjax('SEARCH', requestUrl, requestBody, this._loadSearch,
-                                 this._errorSearch, this._abortSearch);
+        cantusModule._submitAjax('SEARCH', requestUrl, {args: args, body: requestBody},
+                                 this._loadSearch, this._errorSearch, this._abortSearch);
     }.bind(this));
 
     // return the promise
@@ -415,7 +420,7 @@ Cantus.prototype._getHateoas = function() {
         this._hateoasReject = reject;
     }.bind(this));
     this.ready = this._hateoasPromise;
-    cantusModule._submitAjax('GET', this.serverUrl, null, this._loadHateoas);
+    cantusModule._submitAjax('GET', this.serverUrl, {args: {}, body: null}, this._loadHateoas);
 };
 
 Cantus.prototype._loadHateoas = function(event) {
