@@ -407,7 +407,7 @@ Cantus.prototype.get = function(args) {
 
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(function() {
-        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas.browse, true);
+        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
         cantusModule._submitAjax('GET', requestUrl, {args: args, body: null}, this._loadGet,
                                  this._errorGet, this._abortGet);
     }.bind(this));
@@ -436,7 +436,7 @@ Cantus.prototype.search = function(args) {
             }
             return prom;
         }
-        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas.browse, true);
+        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
         cantusModule._submitAjax('SEARCH', requestUrl, {args: args, body: requestBody},
                                  this._loadSearch, this._errorSearch, this._abortSearch);
     }.bind(this));
