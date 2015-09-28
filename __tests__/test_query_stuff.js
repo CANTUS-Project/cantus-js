@@ -40,7 +40,8 @@ describe('get()', function() {
         var actual = cantus.get({'type': 'chant'});
 
         expect(cantusModule._submitAjax.mock.calls.length).toBe(2);
-        expect(cantusModule._submitAjax).toBeCalledWith('GET', 'fakeurl', null, cantus._loadGet);
+        expect(cantusModule._submitAjax).toBeCalledWith('GET', 'fakeurl', null, cantus._loadGet,
+                                                        cantus._errorGet, cantus._abortGet);
         expect(cantusModule._findUrlFromType).toBeCalledWith('chant', cantus._hateoas.browse, true);
         expect(typeof cantus._getResolve).toBe('function');
         expect(typeof cantus._getReject).toBe('function');
@@ -107,7 +108,8 @@ describe('search()', function() {
         var actual = cantus.search(args);
 
         expect(cantusModule._prepareSearchRequestBody).toBeCalledWith(args);
-        expect(cantusModule._submitAjax).toBeCalledWith('SEARCH', 'fakeurl', 'fakequery', cantus._loadSearch);
+        expect(cantusModule._submitAjax).toBeCalledWith('SEARCH', 'fakeurl', 'fakequery', cantus._loadSearch,
+                                                        cantus._errorSearch, cantus._abortSearch);
         expect(cantusModule._findUrlFromType).toBeCalledWith('chant', cantus._hateoas.browse, true);
         expect(typeof cantus._searchResolve).toBe('function');
         expect(typeof cantus._searchReject).toBe('function');
