@@ -189,7 +189,7 @@ HateoasError.prototype.constructor = HateoasError;
 function _findUrlFromType(type, hateoas, defaultAll, id) {
     // Given a resource type and HATEOAS directory, find the server's URL for that type. If the URL
     // can't be found, and the third parameter ("defaultAll") is omitted or evaluates to true, the
-    // URL for "all" types will be returned.
+    // URL for "all" types will be returned *unless* the "id" argument is provided.
     //
     // Parameters:
     // ===========
@@ -197,30 +197,46 @@ function _findUrlFromType(type, hateoas, defaultAll, id) {
     // - hateaos (object) Mapping from resource type to URL; provide the root HATEOAS object that
     //                    contains both "browse" and "view" resources.
     // - defaultAll (bool) Whether to return the "all" URL if "type" cannot be found; defaults to true.
+    // - id (str or int) Optional "id" of a single resource to request.
     //
     // Raises:
     // =======
-    // - HateoasError: when the resource type cannot be found, and either "all" cannot be found, or
-    //                 the "defaultAll" parameter evaluates to false.
+    // - HateoasError: when the resource type cannot be found, and
+    //                    - all" cannot be found, or
+    //                    - the "defaultAll" argument evaluates to false, or
+    //                    - the "id" argument is provided
     //
     // Returns:
     // ========
     // The URL from the "hateoas" dict, with "id" substituted appropriately.
 
-    if ('undefined' === typeof defaultAll) {
+    // set up
+    if (undefined === defaultAll) {
         defaultAll = true;
     }
-
     type = _typeSingularToPlural[type];
+    var requestUrl;
 
-    var requestUrl = hateoas[type];
-    if (requestUrl === undefined && defaultAll) {
-        requestUrl = hateoas['all'];
-    }
-    if (requestUrl === undefined) {
-        throw new HateoasError('Could not find a URL for "' + type + '" resources.');
+    // fetch the URL
+    if (id) {
+        requestUrl = hateoas['view'][type];
+        // if we got a URL, fill in the "id" part
+        if (undefined !== requestUrl) {
+            requestUrl = requestUrl.replace('id?', id);
+        }
     } else {
+        requestUrl = hateoas['browse'][type];
+        // if we didn't get a URL, maybe we can use the "all" type?
+        if (undefined === requestUrl && defaultAll) {
+            requestUrl = hateoas['browse']['all'];
+        }
+    }
+
+    // return the URL if we have one, or else panic
+    if (undefined !== requestUrl) {
         return requestUrl;
+    } else {
+        throw new HateoasError('Could not find a URL for "' + type + '" resources.');
     }
 };
 
