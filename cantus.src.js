@@ -397,7 +397,6 @@ Cantus.prototype.setServerUrl = function(toThis) {
 };
 
 Cantus.prototype.get = function(args) {
-    // TODO: add support for "id" field
 
     // what we'll return
     var prom = new Promise(function(resolve, reject) {
@@ -407,7 +406,7 @@ Cantus.prototype.get = function(args) {
 
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(function() {
-        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
+        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true, args['id']);
         cantusModule._submitAjax('GET', requestUrl, {args: args, body: null}, this._loadGet,
                                  this._errorGet, this._abortGet);
     }.bind(this));

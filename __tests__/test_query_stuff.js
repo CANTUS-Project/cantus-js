@@ -36,7 +36,7 @@ describe('get()', function() {
         cantus._hateoas = {'browse': 'some URLs and stuff'};
         var resolveReady = null;
         cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
-        var args = {'type': 'chant'};
+        var args = {'type': 'chant', 'id': 'what'};
 
         var actual = cantus.get(args);
 
@@ -45,7 +45,7 @@ describe('get()', function() {
             'GET', 'fakeurl', {args: args, body: null}, cantus._loadGet, cantus._errorGet,
             cantus._abortGet
         );
-        expect(cantusModule._findUrlFromType).toBeCalledWith('chant', cantus._hateoas, true);
+        expect(cantusModule._findUrlFromType).toBeCalledWith('chant', cantus._hateoas, true, 'what');
         expect(typeof cantus._getResolve).toBe('function');
         expect(typeof cantus._getReject).toBe('function');
         expect(actual instanceof Promise).toBe(true);
