@@ -232,16 +232,30 @@ describe('_loadResponse', function() {
         expect(rejectMock).toBeCalledWith({code: 404, reason: 'not found', response: '404: not found'});
     });
 
-    it('calls resolve() when the response body decodes properly', function() {
+    it('calls resolve() when the response body decodes properly (sort_order in response)', function() {
         var cantusModule = require('../cantus');
         var resolveMock = jest.genMockFn();
         var rejectMock = jest.genMockFn();
-        var event = {target: {status: 200, statusText: 'OK', response: '{"a":"b"}'}};
+        var responseStr = '{"a":"b","c":"d","sort_order":"ef","resources":"http"}';
+        var event = {target: {status: 200, statusText: 'OK', response: responseStr}};
 
         cantusModule._loadResponse(event, resolveMock, rejectMock);
 
         expect(rejectMock.mock.calls.length).toBe(0);
-        expect(resolveMock).toBeCalledWith({'a': 'b'});
+        expect(resolveMock).toBeCalledWith({'a': 'b', 'c': 'd', 'sort_order': 'ef', 'resources': 'http'});
+    });
+
+    it('calls resolve() when the response body decodes properly (invented sort_order)', function() {
+        var cantusModule = require('../cantus');
+        var resolveMock = jest.genMockFn();
+        var rejectMock = jest.genMockFn();
+        var responseStr = '{"a":"b","resources":"http"}';
+        var event = {target: {status: 200, statusText: 'OK', response: responseStr}};
+
+        cantusModule._loadResponse(event, resolveMock, rejectMock);
+
+        expect(rejectMock.mock.calls.length).toBe(0);
+        expect(resolveMock).toBeCalledWith({'a': 'b', 'sort_order': ['a'], 'resources': 'http'});
     });
 
     it('calls reject() when JSON.parse() throws a SyntaxError', function() {

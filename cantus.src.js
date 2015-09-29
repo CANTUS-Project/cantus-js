@@ -324,6 +324,15 @@ function _loadResponse(event, resolve, reject) {
     } else {
         try {
             var data = JSON.parse(xhr.response);
+            if (undefined === data.sort_order) {
+                var sort_order = [];
+                for (var item in data) {
+                    if ('resources' !== item) {
+                        sort_order.push(item);
+                    }
+                }
+                data['sort_order'] = sort_order;
+            }
             resolve(data);
         } catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
