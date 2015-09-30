@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+#
+# Build a version of CantusJS for deployment in browsers.
+# This file exists mostly so I don't have to remember all the stupid arguments.
+#
+
+exec `browserify cantus.src.js -o cantus.js -d -p [minifyify --no-map]`

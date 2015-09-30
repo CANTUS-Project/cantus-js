@@ -10,6 +10,12 @@
                "email": "christopher@antila.ca",
                "url": "http://christopher.antila.ca/"},
     "repository": {"type": "git", "url": "https://github.com/CANTUS-Project/cantus-js.git"},
-    "devDependencies": {"babel": "*", "jest-cli": "*"},
-    "scripts": {"test": "runtests"}
+    "scripts": {"test": "runtests"},
+    "devDependencies": {
+        "jest-cli": "*",
+        "babelify": "6.2.x",
+        "browserify": "11.0.x",
+        "minifyify": "7.1.x"
+    },
+    "browserify": {"transform": [["babelify", {"modules": "ignore"}]]}
 }

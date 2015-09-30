@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
-babel --compact "true" --no-non-standard -o cantus.js cantus.src.js
+babel --no-non-standard -o cantus.js cantus.src.js
 exec node node_modules/jest-cli/bin/jest.js

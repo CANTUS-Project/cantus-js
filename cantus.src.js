@@ -597,6 +597,8 @@ var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: 
                     _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
                     _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders};
 
-// TODO: find a better solution for this than commenting
-// window.cantusjs = cantusModule;
+
+if ("undefined" !== typeof window) {
+    window.cantusjs = cantusModule;
+}
 export default cantusModule;
