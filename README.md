@@ -14,7 +14,7 @@ provide a means to access that application's source code.
 For now, CantusJS is only compatible with Firefox 29+, Chrome 32+, Opera 19+, Safari 7.1+, and
 Microsoft Edge. Therefore, it's only suitable for testing, for now.
 
-## Basic Examples (Get Started)
+## Basic Examples (to Get Started)
 
 Copy the "cantus.js" file to your web server.
 
@@ -37,28 +37,26 @@ var searchParams = {type: 'chant', 'genre': 'antiphon', 'any': '"in domine"'};
 cantus.search(searchParams).then(function(data) {
   // "data" holds the results in JSON
   console.log(data);
-  // ... do whatever ...
-}).catch(function(errorMessage) {
-  // "errorMessage" holds the text of an error
+}).catch(function(errorInfo) {
+  // "errorInfo" holds information about an error, described in the get() docs below
   console.log(errorMessage);
 });
 ```
 
-Everything in "searchParams" is optional. If you don't specify a "type" it will search for resources
+Everything in ``searchParams`` is optional. If you don't specify a "type" it will search for resources
 of any type. If you're giving a multi-word query like "in domine" above, you *must* include the
-double-quote marks, as in the example above. You can use the "any" parameter to search all fields.
+double-quote marks. You can use the "any" parameter to search all fields.
 
 The useful parameters are different for every resource type. Refer to the
 [Cantus API](https://cantus-api.readthedocs.org/en/latest/resource_types.html#simple-resource-types)
 to know which fields are useful for which resource type.
 
-If there is an error, including if no results are found, the "catch" function runs instead of the
-"then" function. You can use this to check if the error happened because no results were found:
+If there is an error, including if no results are found, the ``catch()`` function runs instead of the
+``then()`` function. You can use this to check if the error happened because no results were found:
 
 ```javascript
 }).catch(function(errorMessage) {
-  // "errorMessage" holds the text of an error
-  if (errorMessage.startsWith('404') {
+  if (404 === errorMessage.code) {
     // tell the user somehow
   } else {
     // tell the user something else
@@ -67,7 +65,69 @@ If there is an error, including if no results are found, the "catch" function ru
 ```
 ## How to Use Promises
 
-TODO: write this section!
+JavaScript *Promises* are the key to CantusJS. Promises are a relatively new feature in JavaScript,
+so users who do not update their browsers regularly may not be able to use CantusJS. We are planning
+a work-around to this limitation in the near future.
+
+A JavaScript Promise implements *asynchronous* behaviour in a consistent and reliable way. You get
+a Promise when a function returns it. For the functions that return a Promise, you can think of
+their behaviour as "I promise to do something for you, *then* call a particular function."
+
+```javascript
+var prom = addNumbers(2, 2);
+prom.then(
+  function(sum) {
+    console.log(sum);
+  }
+);
+```
+
+In the example above, ``addNumbers()`` returns a Promise. We call the ``then()`` function on the
+Promise, and give it a function that we want to execute when ``addNumbers()`` is finished. Although
+``addNumbers()`` technically returns a *Promise* object, the meaningful return value is the
+argument given to the function we supply to ``then()``. In this example, obviously, the number 4
+will be printed in the console.
+
+When something goes wrong, the ``then()`` function will not be called. To deal with errors, you
+supply a function to the ``catch()`` function of a Promise. This is named after the "catch" branch
+of a try/catch statement. In the following example, the ``catch()`` function would be called if the
+argument to ``divideFiveBy()`` is zero.
+
+```javascript
+var prom = divideFiveBy(0);
+prom.then(alert).catch(alert);
+```
+
+Note that you can provide *any* function as the argument to ``then()`` or ``catch()``. You don't
+have to write the function out right there. You can give the same function to both ``then()``
+and ``catch()``.
+
+### What Asynchronous Really Means
+
+Promises are *asynchronous*. This means you don't know when the ``then()`` or ``catch()`` function
+will be called, and you don't know which one will be called.
+
+Consider this example:
+
+```javascript
+console.log('1');
+var prom = cantus.get({'id': '123'});
+prom.then(function() {
+  console.log('2');
+});
+console.log('3');
+```
+Because the ``then()`` function is only called *after* the request returns from the Cantus server,
+the console output is almost certainly going to look like this:
+
+```
+1
+3
+2
+```
+
+Therefore, any code that accesses the server's response must be put in the ``then()`` or ``catch()``
+functions.
 
 ## Function Specification
 
