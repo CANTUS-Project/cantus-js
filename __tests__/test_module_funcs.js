@@ -360,3 +360,63 @@ describe('_addRequestHeaders()', function() {
         expect(mockXhr.setRequestHeader).toBeCalledWith('X-Cantus-Fields', 'A ZedHang');
     });
 });
+
+describe('_submitAjax', function() {
+    // It's a little sloppy to mock XMLHttpRequest by simply replacing it, and not restoring the
+    // original and actual XMLHttpRequest object. However, in these tests, we *never* need the real
+    // XMLHttpRequest object, so I'm over it.
+
+    it('behaves with all three listener functions and a request body', function() {
+        var cantusModule = require('../cantus');
+        window.XMLHttpRequest = jest.genMockFn();
+        // this is effectively the XMLHttpRequest returned from _addRequestHeaders()
+        var mockXhr = {
+            addEventListener: jest.genMockFn(),
+            open: jest.genMockFn(),
+            send: jest.genMockFn()
+        };
+        cantusModule._addRequestHeaders = jest.genMockFn();
+        cantusModule._addRequestHeaders.mockReturnValue(mockXhr);
+        var httpMethod = 'FORCE';
+        var url = 'http.//';
+        var data = {'args': 'fargs', 'body': 'schmata'};
+        var loadListener = 1;
+        var errorListener = 2;
+        var abortListener = 3;
+
+        cantusModule._submitAjax(httpMethod, url, data, loadListener, errorListener, abortListener);
+
+        expect(cantusModule._addRequestHeaders).toBeCalledWith({}, 'fargs');
+        expect(mockXhr.addEventListener.mock.calls.length).toBe(3);
+        expect(mockXhr.addEventListener).toBeCalledWith('load', loadListener);
+        expect(mockXhr.addEventListener).toBeCalledWith('error', errorListener);
+        expect(mockXhr.addEventListener).toBeCalledWith('abort', abortListener);
+        expect(mockXhr.open).toBeCalledWith(httpMethod, url);
+        expect(mockXhr.send).toBeCalledWith('schmata');
+    });
+
+    it('behaves with all only one listener functions and no request body', function() {
+        var cantusModule = require('../cantus');
+        window.XMLHttpRequest = jest.genMockFn();
+        // this is effectively the XMLHttpRequest returned from _addRequestHeaders()
+        var mockXhr = {
+            addEventListener: jest.genMockFn(),
+            open: jest.genMockFn(),
+            send: jest.genMockFn()
+        };
+        cantusModule._addRequestHeaders = jest.genMockFn();
+        cantusModule._addRequestHeaders.mockReturnValue(mockXhr);
+        var httpMethod = 'FORCE';
+        var url = 'http.//';
+        var data = {'args': 'fargs', 'body': null};
+        var loadListener = 1;
+
+        cantusModule._submitAjax(httpMethod, url, data, loadListener);
+
+        expect(cantusModule._addRequestHeaders).toBeCalledWith({}, 'fargs');
+        expect(mockXhr.addEventListener.mock.calls.length).toBe(1);
+        expect(mockXhr.addEventListener).toBeCalledWith('load', loadListener);
+        expect(mockXhr.open).toBeCalledWith(httpMethod, url);
+        expect(mockXhr.send).toBeCalledWith();
+    });
+});
