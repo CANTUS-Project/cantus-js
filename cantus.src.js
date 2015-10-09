@@ -349,8 +349,9 @@ function _loadResponse(event, resolve, reject) {
                 'sort': xhr.getResponseHeader('X-Cantus-Sort'),
                 'search_help': xhr.getResponseHeader('X-Cantus-Search-Help')
             };
+            data['headers'] = headers;
 
-            resolve(data, headers);
+            resolve(data);
         } catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
                 var errObj = {code: 0, reason: 'internal error',

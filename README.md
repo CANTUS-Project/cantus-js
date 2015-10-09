@@ -151,8 +151,9 @@ This function returns a Promise. Refer to the description above to know what thi
 
 - ``then()`` The Promise returned by this function is resolved to the then() function when the
     server returns a "200" response code, meaning that the requested resource(s) was/were
-    found and returned without issue. This function is given two arguments: the response body
-    from the Cantus server, and the response headers. Both are fully defined in the Cantus API.
+    found and returned without issue. This function is given one arguments: the response body
+    from the Cantus server, plus the response headers in the "header" member. Both are fully
+    defined in the Cantus API.
 
     The response body looks approximately like this:
 
@@ -160,6 +161,7 @@ This function returns a Promise. Refer to the description above to know what thi
     {
       '123': {'type': 'chant', 'id': '123', 'incipit': 'Et quoniam...'},
       '666': {'type': 'chant', 'id': '666', 'incipit': 'Yikes!'},
+      'sort_order': ['123', '666'],
       'resources': {'123': {'self': 'http://cantus.org/123'},
                     '666': {'self': 'http://cantus.org/666'}}
     }
@@ -181,6 +183,30 @@ This function returns a Promise. Refer to the description above to know what thi
         'per_page': '15',
         'sort': null,
         'search_help': null
+    }
+    ```
+
+    The whole argument to the ``then()`` function therefore looks like this:
+
+    ```javascript
+    {
+      '123': {'type': 'chant', 'id': '123', 'incipit': 'Et quoniam...'},
+      '666': {'type': 'chant', 'id': '666', 'incipit': 'Yikes!'},
+      'sort_order': ['123', '666'],
+      'resources': {'123': {'self': 'http://cantus.org/123'},
+                    '666': {'self': 'http://cantus.org/666'}},
+      'headers': {
+          'version': '3.2.6',
+          'include_resources': 'true',
+          'fields': 'id,type,incipit,indexer',
+          'extra_fields': 'genre',
+          'no_xref': 'false',
+          'total_results': '4388',
+          'page': '3',
+          'per_page': '15',
+          'sort': null,
+          'search_help': null
+      }
     }
     ```
 

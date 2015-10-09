@@ -257,11 +257,12 @@ describe('_loadResponse', function() {
             'extra_fields': '4', 'no_xref': '5', 'total_results': '6', 'page': null, 'per_page': null,
             'sort': null, 'search_help': null
         };
+        expectedResponse['headers'] = expectedHeaders;
 
         cantusModule._loadResponse(event, resolveMock, rejectMock);
 
         expect(rejectMock.mock.calls.length).toBe(0);
-        expect(resolveMock).toBeCalledWith(expectedResponse, expectedHeaders);
+        expect(resolveMock).toBeCalledWith(expectedResponse);
     });
 
     it('calls resolve() when the response body decodes properly (invented sort_order)', function() {
@@ -288,11 +289,12 @@ describe('_loadResponse', function() {
         };
         var event = {target: {status: 200, statusText: 'OK', response: responseStr,
                               getResponseHeader: getResponseHeader}};
+        expectedResponse['headers'] = expectedHeaders;
 
         cantusModule._loadResponse(event, resolveMock, rejectMock);
 
         expect(rejectMock.mock.calls.length).toBe(0);
-        expect(resolveMock).toBeCalledWith(expectedResponse, expectedHeaders);
+        expect(resolveMock).toBeCalledWith(expectedResponse);
     });
 
     it('calls reject() when JSON.parse() throws a SyntaxError', function() {
