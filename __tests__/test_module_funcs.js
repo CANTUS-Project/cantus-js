@@ -407,13 +407,13 @@ describe('_submitAjax', function() {
 
     it('behaves with all three listener functions and a request body', function() {
         var cantusModule = require('../cantus');
-        window.XMLHttpRequest = jest.genMockFn();
-        // this is effectively the XMLHttpRequest returned from _addRequestHeaders()
         var mockXhr = {
             addEventListener: jest.genMockFn(),
             open: jest.genMockFn(),
             send: jest.genMockFn()
         };
+        cantusModule._dumbXhrThing = jest.genMockFn();
+        cantusModule._dumbXhrThing.mockReturnValue(mockXhr);
         cantusModule._addRequestHeaders = jest.genMockFn();
         cantusModule._addRequestHeaders.mockReturnValue(mockXhr);
         var httpMethod = 'FORCE';
@@ -425,7 +425,7 @@ describe('_submitAjax', function() {
 
         cantusModule._submitAjax(httpMethod, url, data, loadListener, errorListener, abortListener);
 
-        expect(cantusModule._addRequestHeaders).toBeCalledWith({}, 'fargs');
+        expect(cantusModule._addRequestHeaders).toBeCalledWith(mockXhr, 'fargs');
         expect(mockXhr.addEventListener.mock.calls.length).toBe(3);
         expect(mockXhr.addEventListener).toBeCalledWith('load', loadListener);
         expect(mockXhr.addEventListener).toBeCalledWith('error', errorListener);
@@ -434,15 +434,15 @@ describe('_submitAjax', function() {
         expect(mockXhr.send).toBeCalledWith('schmata');
     });
 
-    it('behaves with all only one listener functions and no request body', function() {
+    it('behaves with only one listener function and no request body', function() {
         var cantusModule = require('../cantus');
-        window.XMLHttpRequest = jest.genMockFn();
-        // this is effectively the XMLHttpRequest returned from _addRequestHeaders()
         var mockXhr = {
             addEventListener: jest.genMockFn(),
             open: jest.genMockFn(),
             send: jest.genMockFn()
         };
+        cantusModule._dumbXhrThing = jest.genMockFn();
+        cantusModule._dumbXhrThing.mockReturnValue(mockXhr);
         cantusModule._addRequestHeaders = jest.genMockFn();
         cantusModule._addRequestHeaders.mockReturnValue(mockXhr);
         var httpMethod = 'FORCE';
@@ -452,7 +452,7 @@ describe('_submitAjax', function() {
 
         cantusModule._submitAjax(httpMethod, url, data, loadListener);
 
-        expect(cantusModule._addRequestHeaders).toBeCalledWith({}, 'fargs');
+        expect(cantusModule._addRequestHeaders).toBeCalledWith(mockXhr, 'fargs');
         expect(mockXhr.addEventListener.mock.calls.length).toBe(1);
         expect(mockXhr.addEventListener).toBeCalledWith('load', loadListener);
         expect(mockXhr.open).toBeCalledWith(httpMethod, url);

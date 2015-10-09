@@ -138,6 +138,12 @@ function _addRequestHeaders(xhr, args) {
     return xhr;
 };
 
+function _dumbXhrThing() {
+    // Simply returns a new XMLHttpRequest. It's because I couldn't figure out how to mock the
+    // XMLHttpRequest properly, and I didn't think it was worth the effort.
+    return new XMLHttpRequest();
+};
+
 function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortListener) {
     // This function submits the AJAX requests. It's separated here so the actual functions used
     // for the request is abstracted, and to allow easier mocking in unit tests.
@@ -157,8 +163,8 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
     // ========
     // Nothing. However, one of the "listener" functions will be called.
 
-    var xhr = new XMLHttpRequest();
-    xhr.open(httpMethod, url);
+    var xhr = cantusModule._dumbXhrThing();
+    xhr.open(httpMethod, url);  // NOTE: you must call open() before setting request headers
     xhr = cantusModule._addRequestHeaders(xhr, data.args);
 
     xhr.addEventListener('load', loadListener);
@@ -613,7 +619,8 @@ Cantus.prototype._errorSearch = function(event) {
 var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
                     _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
                     _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
-                    _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders};
+                    _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders,
+                    _dumbXhrThing:_dumbXhrThing};
 
 
 if ("undefined" !== typeof window) {
