@@ -323,6 +323,7 @@ function _loadResponse(event, resolve, reject) {
         reject(errObj);
     } else {
         try {
+            // prepare the response body
             var data = JSON.parse(xhr.response);
             if (undefined === data.sort_order) {
                 var sort_order = [];
@@ -333,7 +334,22 @@ function _loadResponse(event, resolve, reject) {
                 }
                 data['sort_order'] = sort_order;
             }
-            resolve(data);
+
+            // prepare the response headers
+            var headers = {
+                'version': xhr.getResponseHeader('X-Cantus-Version'),
+                'include_resources': xhr.getResponseHeader('X-Cantus-Include-Resources'),
+                'fields': xhr.getResponseHeader('X-Cantus-Fields'),
+                'extra_fields': xhr.getResponseHeader('X-Cantus-Extra-Fields'),
+                'no_xref': xhr.getResponseHeader('X-Cantus-No-Xref'),
+                'total_results': xhr.getResponseHeader('X-Cantus-Total-Results'),
+                'page': xhr.getResponseHeader('X-Cantus-Page'),
+                'per_page': xhr.getResponseHeader('X-Cantus-Per-Page'),
+                'sort': xhr.getResponseHeader('X-Cantus-Sort'),
+                'search_help': xhr.getResponseHeader('X-Cantus-Search-Help')
+            };
+
+            resolve(data, headers);
         } catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
                 var errObj = {code: 0, reason: 'internal error',

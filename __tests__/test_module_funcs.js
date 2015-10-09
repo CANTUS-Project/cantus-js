@@ -236,26 +236,63 @@ describe('_loadResponse', function() {
         var cantusModule = require('../cantus');
         var resolveMock = jest.genMockFn();
         var rejectMock = jest.genMockFn();
+        // mock for the XMLHttpRequest
         var responseStr = '{"a":"b","c":"d","sort_order":"ef","resources":"http"}';
-        var event = {target: {status: 200, statusText: 'OK', response: responseStr}};
+        var getResponseHeader = function(header) {
+            var headers = {'X-Cantus-Version': '1', 'X-Cantus-Include-Resources': '2',
+                'X-Cantus-Fields': '3', 'X-Cantus-Extra-Fields': '4', 'X-Cantus-No-Xref': '5',
+                'X-Cantus-Total-Results': '6'
+            };
+            if (headers[header] !== undefined) {
+                return headers[header];
+            } else {
+                return null;
+            }
+        };
+        var event = {target: {status: 200, statusText: 'OK', response: responseStr,
+                              getResponseHeader: getResponseHeader}};
+        // expecteds
+        var expectedResponse = {'a': 'b', 'c': 'd', 'sort_order': 'ef', 'resources': 'http'};
+        var expectedHeaders = {'version': '1', 'include_resources': '2', 'fields': '3',
+            'extra_fields': '4', 'no_xref': '5', 'total_results': '6', 'page': null, 'per_page': null,
+            'sort': null, 'search_help': null
+        };
 
         cantusModule._loadResponse(event, resolveMock, rejectMock);
 
         expect(rejectMock.mock.calls.length).toBe(0);
-        expect(resolveMock).toBeCalledWith({'a': 'b', 'c': 'd', 'sort_order': 'ef', 'resources': 'http'});
+        expect(resolveMock).toBeCalledWith(expectedResponse, expectedHeaders);
     });
 
     it('calls resolve() when the response body decodes properly (invented sort_order)', function() {
         var cantusModule = require('../cantus');
         var resolveMock = jest.genMockFn();
         var rejectMock = jest.genMockFn();
+        // mock for the XMLHttpRequest
         var responseStr = '{"a":"b","resources":"http"}';
-        var event = {target: {status: 200, statusText: 'OK', response: responseStr}};
+        var getResponseHeader = function(header) {
+            var headers = {'X-Cantus-Page': 'a', 'X-Cantus-Per-Page': 'b', 'X-Cantus-Sort': 'c',
+                'X-Cantus-Search-Help': 'd',
+            };
+            if (headers[header] !== undefined) {
+                return headers[header];
+            } else {
+                return null;
+            }
+        };
+        // expecteds
+        var expectedResponse = {'a': 'b', 'sort_order': ['a'], 'resources': 'http'};
+        var expectedHeaders = {'version': null, 'include_resources': null, 'fields': null,
+            'extra_fields': null, 'no_xref': null, 'total_results': null, 'page': 'a', 'per_page': 'b',
+            'sort': 'c', 'search_help': 'd'
+        };
+        var event = {target: {status: 200, statusText: 'OK', response: responseStr,
+                              getResponseHeader: getResponseHeader}};
 
         cantusModule._loadResponse(event, resolveMock, rejectMock);
 
         expect(rejectMock.mock.calls.length).toBe(0);
-        expect(resolveMock).toBeCalledWith({'a': 'b', 'sort_order': ['a'], 'resources': 'http'});
+        expect(resolveMock).toBeCalledWith(expectedResponse, expectedHeaders);
     });
 
     it('calls reject() when JSON.parse() throws a SyntaxError', function() {

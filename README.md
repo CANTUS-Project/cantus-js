@@ -151,17 +151,36 @@ This function returns a Promise. Refer to the description above to know what thi
 
 - ``then()`` The Promise returned by this function is resolved to the then() function when the
     server returns a "200" response code, meaning that the requested resource(s) was/were
-    found and returned without issue. This function is given a single argument, which is the
-    response body from the Cantus server, which is fully defined in the Cantus API. It looks
-    approximately like this:
+    found and returned without issue. This function is given two arguments: the response body
+    from the Cantus server, and the response headers. Both are fully defined in the Cantus API.
+
+    The response body looks approximately like this:
 
     ```javascript
     {
       '123': {'type': 'chant', 'id': '123', 'incipit': 'Et quoniam...'},
       '666': {'type': 'chant', 'id': '666', 'incipit': 'Yikes!'},
       'resources': {'123': {'self': 'http://cantus.org/123'},
-                    '666': {'self': 'http://cantus.org/666'}},
-      'sort_order': ['123', '666']
+                    '666': {'self': 'http://cantus.org/666'}}
+    }
+    ```
+
+    The response headers are regularized, meaning the "X-Cantus" portion is removed, all characters
+    are lowercase, and words are joined with underscores. Many requests will not have information
+    in all the response headers. The headers object will contain "null" for those headers.
+
+    ```javascript
+    {
+        'version': '3.2.6',
+        'include_resources': 'true',
+        'fields': 'id,type,incipit,indexer',
+        'extra_fields': 'genre',
+        'no_xref': 'false',
+        'total_results': '4388',
+        'page': '3',
+        'per_page': '15',
+        'sort': null,
+        'search_help': null
     }
     ```
 
