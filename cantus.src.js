@@ -157,7 +157,9 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
     // ========
     // Nothing. However, one of the "listener" functions will be called.
 
-    var xhr = cantusModule._addRequestHeaders(new XMLHttpRequest(), data.args);
+    var xhr = new XMLHttpRequest();
+    xhr.open(httpMethod, url);
+    xhr = cantusModule._addRequestHeaders(xhr, data.args);
 
     xhr.addEventListener('load', loadListener);
     if (undefined !== errorListener) {
@@ -166,7 +168,6 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
     if (undefined !== abortListener) {
         xhr.addEventListener('abort', abortListener);
     }
-    xhr.open(httpMethod, url);
     if (null !== data.body) {
         xhr.send(data.body);
     } else {
