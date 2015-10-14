@@ -282,6 +282,10 @@ function _prepareSearchRequestBody(query) {
         'institution', 'city', 'country', 'source_id', 'office_id', 'genre_id', 'feast_id',
         'provenance_id', 'century_id','notation_style_id', 'any', 'type'];
 
+    // These aren't search fields, but they may appear in the "query" argument because they're used
+    // to set request headers. We'll just ignore them.
+    let headerFields = ['page', 'per_page', 'fields', 'sort'];
+
     var queryStr = '';
     for (var field in query) {
         // NB: if we were using proper JavaScript Objects, that inherited members from a prototype,
@@ -294,7 +298,7 @@ function _prepareSearchRequestBody(query) {
             } else {
                 queryStr += ' ' + field + ':' + query[field];
             }
-        } else {
+        } else if (!headerFields.includes(field)) {
             throw new QueryError('Invalid field in query: "' + field + '"');
         }
     }

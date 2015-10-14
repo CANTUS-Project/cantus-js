@@ -206,6 +206,16 @@ describe('_prepareSearchRequestBody()', function() {
         expect(actual).toBe(expected);
     });
 
+    it('works with a regular arg, "any", and a request header field (that is ignored)', function() {
+        var cantusModule = require('../cantus');
+        var query = {'feast': 'two', 'any': '"item three"', 'page': '9001'};
+        var expected = '{"query":"feast:two \\\"item three\\\""}';
+
+        var actual = cantusModule._prepareSearchRequestBody(query);
+
+        expect(actual).toBe(expected);
+    });
+
     it('throws QueryError with an unknown query field', function() {
         var cantusModule = require('../cantus');
         var query = {'name': 'one', 'backhoe': 'two', 'any': '"item three"'};
