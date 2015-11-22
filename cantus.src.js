@@ -332,9 +332,8 @@ function _prepareSearchRequestBody(query) {
         if (VALID_FIELDS.includes(field)) {
             if ('any' === field) {
                 queryStr += ' ' + query['any'];
-            } else if ('type' === field) {
+            } else if ('type' !== field) {
                 // ignore "type"
-            } else {
                 queryStr += ' ' + field + ':' + query[field];
             }
         } else if (!headerFields.includes(field)) {
