@@ -667,8 +667,4 @@ const cantusModule = {
     convertTypeNumber: convertTypeNumber, VALID_FIELDS: VALID_FIELDS
 };
 
-
-if ("undefined" !== typeof window) {
-    window.cantusjs = cantusModule;
-}
 export default cantusModule;
