@@ -32,13 +32,13 @@ describe('get()', function() {
         CANTUS_MODULE._submitAjax = jest.genMockFn();
         CANTUS_MODULE._findUrlFromType = jest.genMockFn();
         CANTUS_MODULE._findUrlFromType.mockReturnValue('fakeurl');
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._hateoas = {'browse': 'some URLs and stuff'};
-        var resolveReady = null;
+        let resolveReady = null;
         cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
-        var args = {'type': 'chant', 'id': 'what'};
+        let args = {'type': 'chant', 'id': 'what'};
 
-        var actual = cantus.get(args);
+        let actual = cantus.get(args);
 
         expect(CANTUS_MODULE._submitAjax.mock.calls.length).toBe(2);
         expect(CANTUS_MODULE._submitAjax).toBeCalledWith(
@@ -54,10 +54,10 @@ describe('get()', function() {
     it('_loadGet() properly delegates to _loadResponse()', function() {
         CANTUS_MODULE._submitAjax = jest.genMockFn();
         CANTUS_MODULE._loadResponse = jest.genMockFn();
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._getResolve = 5;
         cantus._getReject = 6;
-        var mockEvent = 4;
+        let mockEvent = 4;
 
         cantus._loadGet(mockEvent);
 
@@ -67,10 +67,10 @@ describe('get()', function() {
     it('_abortGet() properly delegates to _abortRequest()', function() {
         CANTUS_MODULE._submitAjax = jest.genMockFn();
         CANTUS_MODULE._abortRequest = jest.genMockFn();
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._getResolve = 5;
         cantus._getReject = 6;
-        var mockEvent = 4;
+        let mockEvent = 4;
 
         cantus._abortGet(mockEvent);
 
@@ -80,10 +80,10 @@ describe('get()', function() {
     it('_errorGet() properly delegates to _errorRequest()', function() {
         CANTUS_MODULE._submitAjax = jest.genMockFn();
         CANTUS_MODULE._errorRequest = jest.genMockFn();
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._getResolve = 5;
         cantus._getReject = 6;
-        var mockEvent = 4;
+        let mockEvent = 4;
 
         cantus._errorGet(mockEvent);
 
@@ -98,13 +98,13 @@ describe('search()', function() {
         CANTUS_MODULE._findUrlFromType.mockReturnValue('fakeurl');
         CANTUS_MODULE._prepareSearchRequestBody = jest.genMockFn();
         CANTUS_MODULE._prepareSearchRequestBody.mockReturnValue('fakequery');
-        var args = {'type': 'chant', 'incipit': 'deus'};
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let args = {'type': 'chant', 'incipit': 'deus'};
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._hateoas = {'browse': 'some URLs and stuff'};
-        var resolveReady = null;
+        let resolveReady = null;
         cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
 
-        var actual = cantus.search(args);
+        let actual = cantus.search(args);
 
         expect(CANTUS_MODULE._prepareSearchRequestBody).toBeCalledWith(args);
         expect(CANTUS_MODULE._submitAjax).toBeCalledWith(
@@ -123,17 +123,17 @@ describe('search()', function() {
         CANTUS_MODULE._findUrlFromType.mockReturnValue('fakeurl');
         CANTUS_MODULE._prepareSearchRequestBody = jest.genMockFn();
         CANTUS_MODULE._prepareSearchRequestBody.mockImpl(function() {throw new CANTUS_MODULE._QueryError()});
-        var args = {'type': 'chant', 'cats': '"they meow"'};
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let args = {'type': 'chant', 'cats': '"they meow"'};
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._hateoas = {'browse': 'some URLs and stuff'};
-        var resolveReady = null;
+        let resolveReady = null;
         cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
         // This Promise is resolved when the "then" or "catch" function is triggered on the Promise
         // returned by the function-under-test.
-        var testAccept = null;
-        var testPromise = new Promise(function(resolve, reject) { testAccept = resolve; });
+        let testAccept = null;
+        let testPromise = new Promise(function(resolve, reject) { testAccept = resolve; });
 
-        var actual = cantus.search(args);
+        let actual = cantus.search(args);
         actual
             .then(function() { testAccept('then'); })
             .catch(function() { testAccept('catch'); })
@@ -163,10 +163,10 @@ describe('search()', function() {
     it('_loadSearch() properly delegates to _loadResponse()', function() {
         CANTUS_MODULE._submitAjax = jest.genMockFn();
         CANTUS_MODULE._loadResponse = jest.genMockFn();
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._searchResolve = 5;
         cantus._searchReject = 6;
-        var mockEvent = 4;
+        let mockEvent = 4;
 
         cantus._loadSearch(mockEvent);
 
@@ -176,10 +176,10 @@ describe('search()', function() {
     it('_abortSearch() properly delegates to _abortRequest()', function() {
         CANTUS_MODULE._submitAjax = jest.genMockFn();
         CANTUS_MODULE._abortRequest = jest.genMockFn();
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._searchResolve = 5;
         cantus._searchReject = 6;
-        var mockEvent = 4;
+        let mockEvent = 4;
 
         cantus._abortSearch(mockEvent);
 
@@ -189,10 +189,10 @@ describe('search()', function() {
     it('_errorSearch() properly delegates to _errorRequest()', function() {
         CANTUS_MODULE._submitAjax = jest.genMockFn();
         CANTUS_MODULE._errorRequest = jest.genMockFn();
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._searchResolve = 5;
         cantus._searchReject = 6;
-        var mockEvent = 4;
+        let mockEvent = 4;
 
         cantus._errorSearch(mockEvent);
 

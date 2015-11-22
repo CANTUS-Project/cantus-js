@@ -38,7 +38,7 @@ describe('the constructor', function() {
     });
 
     it('calls setServerUrl(), which calls _getHateoas()', function() {
-        var cantus = new CANTUS_MODULE.Cantus('theserver');
+        let cantus = new CANTUS_MODULE.Cantus('theserver');
 
         expect(CANTUS_MODULE._submitAjax).toBeCalledWith('GET', 'theserver', {args: {}, body: null},
                                                         cantus._loadHateoas);
@@ -56,8 +56,8 @@ describe('setServerUrl()', function() {
     });
 
     it('calls _getHateoas()', function() {
-        var can = new CANTUS_MODULE.Cantus('asdf');
-        var getHateoas = jest.genMockFunction();
+        let can = new CANTUS_MODULE.Cantus('asdf');
+        let getHateoas = jest.genMockFunction();
         can._getHateoas = getHateoas;
 
         can.setServerUrl('something');
@@ -78,7 +78,7 @@ describe('_getHateoas()', function() {
     });
 
     it('calls _submitAjax() properly', function() {
-        var cantus = new CANTUS_MODULE.Cantus('asdf');
+        let cantus = new CANTUS_MODULE.Cantus('asdf');
         cantus.serverUrl = 'something';
 
         cantus._getHateoas();
@@ -100,8 +100,8 @@ describe('_loadHateoas()', function() {
     });
 
     it('properly sets "_hateoas" when everything goes fine', function() {
-        var mockEvent = {'target': {'status': 200, 'response': '{"resources":"surprise!"}'}};
-        var cantus = new CANTUS_MODULE.Cantus('a');
+        let mockEvent = {'target': {'status': 200, 'response': '{"resources":"surprise!"}'}};
+        let cantus = new CANTUS_MODULE.Cantus('a');
         cantus._hateoasResolve = jest.genMockFn();
 
         cantus._loadHateoas(mockEvent);
@@ -111,8 +111,8 @@ describe('_loadHateoas()', function() {
     });
 
     it('properly deals with a return code other than 200', function() {
-        var mockEvent = {'target': {'status': 500}};
-        var cantus = new CANTUS_MODULE.Cantus('a');
+        let mockEvent = {'target': {'status': 500}};
+        let cantus = new CANTUS_MODULE.Cantus('a');
         cantus._hateoasReject = jest.genMockFn();
 
         cantus._loadHateoas(mockEvent);
@@ -123,40 +123,40 @@ describe('_loadHateoas()', function() {
 
 describe('_findUrlFromType()', function() {
     it('returns the URL when it is in the object (given as plural)', function() {
-        var type = 'chants';
-        var hateoas = {'browse': {'chants': 'http://chants'}};
-        var expected = hateoas.browse.chants;
+        let type = 'chants';
+        let hateoas = {'browse': {'chants': 'http://chants'}};
+        let expected = hateoas.browse.chants;
 
-        var actual = CANTUS_MODULE._findUrlFromType(type, hateoas);
+        let actual = CANTUS_MODULE._findUrlFromType(type, hateoas);
 
         expect(actual).toBe(expected);
     });
 
     it('returns the URL when it is in the object (given as singular)', function() {
-        var type = 'chant';
-        var hateoas = {'browse': {'chants': 'http://chants'}};
-        var expected = hateoas.browse.chants;
+        let type = 'chant';
+        let hateoas = {'browse': {'chants': 'http://chants'}};
+        let expected = hateoas.browse.chants;
 
-        var actual = CANTUS_MODULE._findUrlFromType(type, hateoas);
+        let actual = CANTUS_MODULE._findUrlFromType(type, hateoas);
 
         expect(actual).toBe(expected);
     });
 
     it('returns the "all" URL when initial is not in the object (defaultAll=true)', function() {
-        var type = 'feasts';
-        var hateoas = {'browse': {'chants': 'http://chants', 'all': 'http://all'}};
-        var defaultAll = true;
-        var expected = hateoas.browse.all;
+        let type = 'feasts';
+        let hateoas = {'browse': {'chants': 'http://chants', 'all': 'http://all'}};
+        let defaultAll = true;
+        let expected = hateoas.browse.all;
 
-        var actual = CANTUS_MODULE._findUrlFromType(type, hateoas, defaultAll);
+        let actual = CANTUS_MODULE._findUrlFromType(type, hateoas, defaultAll);
 
         expect(actual).toBe(expected);
     });
 
     it('raises HateoasError when initial is not in the object (defaultAll=false)', function() {
-        var type = 'feast';
-        var hateoas = {'browse': {'chants': 'http://chants', 'all': 'http://all'}};
-        var defaultAll = false;
+        let type = 'feast';
+        let hateoas = {'browse': {'chants': 'http://chants', 'all': 'http://all'}};
+        let defaultAll = false;
 
         try {
             CANTUS_MODULE._findUrlFromType(type, hateoas, defaultAll);
@@ -167,22 +167,22 @@ describe('_findUrlFromType()', function() {
     });
 
     it('properly substitutes the "id" when the URL is given', function() {
-        var type = 'chants';
-        var hateoas = {'view': {'chants': 'http://cantus/id?/chants/'}};
-        var expected = 'http://cantus/666/chants/';
-        var defaultAll = false;
-        var id = 666;
+        let type = 'chants';
+        let hateoas = {'view': {'chants': 'http://cantus/id?/chants/'}};
+        let expected = 'http://cantus/666/chants/';
+        let defaultAll = false;
+        let id = 666;
 
-        var actual = CANTUS_MODULE._findUrlFromType(type, hateoas, defaultAll, id);
+        let actual = CANTUS_MODULE._findUrlFromType(type, hateoas, defaultAll, id);
 
         expect(actual).toBe(expected);
     });
 
     it('complains when given an "id" and the URL is missing', function() {
-        var type = 'feast';
-        var hateoas = {'view': {'chants': 'http://cantus/id?/chants/'}};
-        var defaultAll = false;
-        var id = 666;
+        let type = 'feast';
+        let hateoas = {'view': {'chants': 'http://cantus/id?/chants/'}};
+        let defaultAll = false;
+        let id = 666;
 
         try {
             CANTUS_MODULE._findUrlFromType(type, hateoas, defaultAll, id);
@@ -195,45 +195,45 @@ describe('_findUrlFromType()', function() {
 
 describe('_prepareSearchRequestBody()', function() {
     it('works with no query arguments', function() {
-        var query = {'type': 'chant'};
-        var expected = '{"query":""}';
+        let query = {'type': 'chant'};
+        let expected = '{"query":""}';
 
-        var actual = CANTUS_MODULE._prepareSearchRequestBody(query);
+        let actual = CANTUS_MODULE._prepareSearchRequestBody(query);
 
         expect(actual).toBe(expected);
     });
 
     it('works with three regular query arguments', function() {
-        var query = {'name': 'one', 'feast': '"item two"', 'date': 'three'};
+        let query = {'name': 'one', 'feast': '"item two"', 'date': 'three'};
         // The output will literally include a backslash followed by a double-quote, because that's
         // how it has to be encoded to a JSON string.
-        var expected = '{"query":"name:one feast:\\\"item two\\\" date:three"}';
+        let expected = '{"query":"name:one feast:\\\"item two\\\" date:three"}';
 
-        var actual = CANTUS_MODULE._prepareSearchRequestBody(query);
+        let actual = CANTUS_MODULE._prepareSearchRequestBody(query);
 
         expect(actual).toBe(expected);
     });
 
     it('works with two regular args and "any"', function() {
-        var query = {'name': 'one', 'feast': 'two', 'any': '"item three"'};
-        var expected = '{"query":"name:one feast:two \\\"item three\\\""}';
+        let query = {'name': 'one', 'feast': 'two', 'any': '"item three"'};
+        let expected = '{"query":"name:one feast:two \\\"item three\\\""}';
 
-        var actual = CANTUS_MODULE._prepareSearchRequestBody(query);
+        let actual = CANTUS_MODULE._prepareSearchRequestBody(query);
 
         expect(actual).toBe(expected);
     });
 
     it('works with a regular arg, "any", and a request header field (that is ignored)', function() {
-        var query = {'feast': 'two', 'any': '"item three"', 'page': '9001'};
-        var expected = '{"query":"feast:two \\\"item three\\\""}';
+        let query = {'feast': 'two', 'any': '"item three"', 'page': '9001'};
+        let expected = '{"query":"feast:two \\\"item three\\\""}';
 
-        var actual = CANTUS_MODULE._prepareSearchRequestBody(query);
+        let actual = CANTUS_MODULE._prepareSearchRequestBody(query);
 
         expect(actual).toBe(expected);
     });
 
     it('throws QueryError with an unknown query field', function() {
-        var query = {'name': 'one', 'backhoe': 'two', 'any': '"item three"'};
+        let query = {'name': 'one', 'backhoe': 'two', 'any': '"item three"'};
 
         try {
             CANTUS_MODULE._prepareSearchRequestBody(query);
@@ -246,9 +246,9 @@ describe('_prepareSearchRequestBody()', function() {
 
 describe('_loadResponse', function() {
     it('calls reject() when the response code is not 200', function() {
-        var resolveMock = jest.genMockFn();
-        var rejectMock = jest.genMockFn();
-        var event = {target: {status: 404, statusText: 'not found'}};
+        let resolveMock = jest.genMockFn();
+        let rejectMock = jest.genMockFn();
+        let event = {target: {status: 404, statusText: 'not found'}};
 
         CANTUS_MODULE._loadResponse(event, resolveMock, rejectMock);
 
@@ -257,12 +257,12 @@ describe('_loadResponse', function() {
     });
 
     it('calls resolve() when the response body decodes properly (sort_order in response)', function() {
-        var resolveMock = jest.genMockFn();
-        var rejectMock = jest.genMockFn();
+        let resolveMock = jest.genMockFn();
+        let rejectMock = jest.genMockFn();
         // mock for the XMLHttpRequest
-        var responseStr = '{"a":"b","c":"d","sort_order":"ef","resources":"http"}';
-        var getResponseHeader = function(header) {
-            var headers = {'X-Cantus-Version': '1', 'X-Cantus-Include-Resources': '2',
+        let responseStr = '{"a":"b","c":"d","sort_order":"ef","resources":"http"}';
+        let getResponseHeader = function(header) {
+            let headers = {'X-Cantus-Version': '1', 'X-Cantus-Include-Resources': '2',
                 'X-Cantus-Fields': '3', 'X-Cantus-Extra-Fields': '4', 'X-Cantus-No-Xref': '5',
                 'X-Cantus-Total-Results': '6'
             };
@@ -272,11 +272,11 @@ describe('_loadResponse', function() {
                 return null;
             }
         };
-        var event = {target: {status: 200, statusText: 'OK', response: responseStr,
+        let event = {target: {status: 200, statusText: 'OK', response: responseStr,
                               getResponseHeader: getResponseHeader}};
         // expecteds
-        var expectedResponse = {'a': 'b', 'c': 'd', 'sort_order': 'ef', 'resources': 'http'};
-        var expectedHeaders = {'version': '1', 'include_resources': '2', 'fields': '3',
+        let expectedResponse = {'a': 'b', 'c': 'd', 'sort_order': 'ef', 'resources': 'http'};
+        let expectedHeaders = {'version': '1', 'include_resources': '2', 'fields': '3',
             'extra_fields': '4', 'no_xref': '5', 'total_results': '6', 'page': null, 'per_page': null,
             'sort': null, 'search_help': null
         };
@@ -289,12 +289,12 @@ describe('_loadResponse', function() {
     });
 
     it('calls resolve() when the response body decodes properly (invented sort_order)', function() {
-        var resolveMock = jest.genMockFn();
-        var rejectMock = jest.genMockFn();
+        let resolveMock = jest.genMockFn();
+        let rejectMock = jest.genMockFn();
         // mock for the XMLHttpRequest
-        var responseStr = '{"a":"b","resources":"http"}';
-        var getResponseHeader = function(header) {
-            var headers = {'X-Cantus-Page': 'a', 'X-Cantus-Per-Page': 'b', 'X-Cantus-Sort': 'c',
+        let responseStr = '{"a":"b","resources":"http"}';
+        let getResponseHeader = function(header) {
+            let headers = {'X-Cantus-Page': 'a', 'X-Cantus-Per-Page': 'b', 'X-Cantus-Sort': 'c',
                 'X-Cantus-Search-Help': 'd',
             };
             if (headers[header] !== undefined) {
@@ -304,12 +304,12 @@ describe('_loadResponse', function() {
             }
         };
         // expecteds
-        var expectedResponse = {'a': 'b', 'sort_order': ['a'], 'resources': 'http'};
-        var expectedHeaders = {'version': null, 'include_resources': null, 'fields': null,
+        let expectedResponse = {'a': 'b', 'sort_order': ['a'], 'resources': 'http'};
+        let expectedHeaders = {'version': null, 'include_resources': null, 'fields': null,
             'extra_fields': null, 'no_xref': null, 'total_results': null, 'page': 'a', 'per_page': 'b',
             'sort': 'c', 'search_help': 'd'
         };
-        var event = {target: {status: 200, statusText: 'OK', response: responseStr,
+        let event = {target: {status: 200, statusText: 'OK', response: responseStr,
                               getResponseHeader: getResponseHeader}};
         expectedResponse['headers'] = expectedHeaders;
 
@@ -320,9 +320,9 @@ describe('_loadResponse', function() {
     });
 
     it('calls reject() when JSON.parse() throws a SyntaxError', function() {
-        var resolveMock = jest.genMockFn();
-        var rejectMock = jest.genMockFn();
-        var event = {target: {status: 200, statusText: 'OK', response: '{"a":"b}'}};
+        let resolveMock = jest.genMockFn();
+        let rejectMock = jest.genMockFn();
+        let event = {target: {status: 200, statusText: 'OK', response: '{"a":"b}'}};
 
         CANTUS_MODULE._loadResponse(event, resolveMock, rejectMock);
 
@@ -332,14 +332,14 @@ describe('_loadResponse', function() {
     });
 
     it('calls reject() and rethrows when JSON.parse() throws another error', function() {
-        var orig_global_JSON = global.JSON;
+        let orig_global_JSON = global.JSON;
 
         global.JSON = {parse: jest.genMockFn()};
         global.JSON.parse.mockImpl(function() { throw new Error('whatever, man') });
-        var resolveMock = jest.genMockFn();
-        var rejectMock = jest.genMockFn();
-        var event = {target: {status: 200, statusText: 'OK', response: '{"a":"b}'}};
-        var dumbWrapper = function() {
+        let resolveMock = jest.genMockFn();
+        let rejectMock = jest.genMockFn();
+        let event = {target: {status: 200, statusText: 'OK', response: '{"a":"b}'}};
+        let dumbWrapper = function() {
             // We need this wrapper function because the expect().toThrow() construct is apparently
             // so useless that it can't even pass arguments to the function under test.
             CANTUS_MODULE._loadResponse(event, resolveMock, rejectMock);
@@ -357,9 +357,9 @@ describe('_loadResponse', function() {
 
 describe('"abort" and "error" events for XMLHttpRequest', function() {
     it('_abortRequest() calls its reject() function', function() {
-        var mockEvent = '';
-        var mockReject = jest.genMockFn();
-        var expected = {code: 0, reason: 'Request aborted', response: 'The XMLHttpRequest was aborted.'};
+        let mockEvent = '';
+        let mockReject = jest.genMockFn();
+        let expected = {code: 0, reason: 'Request aborted', response: 'The XMLHttpRequest was aborted.'};
 
         CANTUS_MODULE._abortRequest(mockEvent, mockReject);
 
@@ -367,9 +367,9 @@ describe('"abort" and "error" events for XMLHttpRequest', function() {
     });
 
     it('_errorRequest() calls its reject() function', function() {
-        var mockEvent = '';
-        var mockReject = jest.genMockFn();
-        var expected = {code: 0, reason: 'Request errored', response: 'Error during the XMLHttpRequest.'};
+        let mockEvent = '';
+        let mockReject = jest.genMockFn();
+        let expected = {code: 0, reason: 'Request errored', response: 'Error during the XMLHttpRequest.'};
 
         CANTUS_MODULE._errorRequest(mockEvent, mockReject);
 
@@ -379,20 +379,20 @@ describe('"abort" and "error" events for XMLHttpRequest', function() {
 
 describe('_addRequestHeaders()', function() {
     it('works with no headers', function() {
-        var mockXhr = {'setRequestHeader': jest.genMockFn()};
-        var args = {};
+        let mockXhr = {'setRequestHeader': jest.genMockFn()};
+        let args = {};
 
-        var actual = CANTUS_MODULE._addRequestHeaders(mockXhr, args);
+        let actual = CANTUS_MODULE._addRequestHeaders(mockXhr, args);
 
         expect(actual).toBe(mockXhr);
         expect(mockXhr.setRequestHeader.mock.calls.length).toBe(0);
     });
 
     it('works with one header', function() {
-        var mockXhr = {'setRequestHeader': jest.genMockFn()};
-        var args = {'sort': 'functionality'};
+        let mockXhr = {'setRequestHeader': jest.genMockFn()};
+        let args = {'sort': 'functionality'};
 
-        var actual = CANTUS_MODULE._addRequestHeaders(mockXhr, args);
+        let actual = CANTUS_MODULE._addRequestHeaders(mockXhr, args);
 
         expect(actual).toBe(mockXhr);
         expect(mockXhr.setRequestHeader.mock.calls.length).toBe(1);
@@ -400,11 +400,11 @@ describe('_addRequestHeaders()', function() {
     });
 
     it('works with four headers', function() {
-        var mockXhr = {'setRequestHeader': jest.genMockFn()};
-        var args = {'page': 'Wolfram', 'per_page': 'Bee Gees', 'sort': 'functionality',
+        let mockXhr = {'setRequestHeader': jest.genMockFn()};
+        let args = {'page': 'Wolfram', 'per_page': 'Bee Gees', 'sort': 'functionality',
                     'fields': 'A ZedHang'};
 
-        var actual = CANTUS_MODULE._addRequestHeaders(mockXhr, args);
+        let actual = CANTUS_MODULE._addRequestHeaders(mockXhr, args);
 
         expect(actual).toBe(mockXhr);
         expect(mockXhr.setRequestHeader.mock.calls.length).toBe(4);
@@ -421,7 +421,7 @@ describe('_submitAjax', function() {
     // XMLHttpRequest object, so I'm over it.
 
     it('behaves with all three listener functions and a request body', function() {
-        var mockXhr = {
+        let mockXhr = {
             addEventListener: jest.genMockFn(),
             open: jest.genMockFn(),
             send: jest.genMockFn()
@@ -430,12 +430,12 @@ describe('_submitAjax', function() {
         CANTUS_MODULE._dumbXhrThing.mockReturnValue(mockXhr);
         CANTUS_MODULE._addRequestHeaders = jest.genMockFn();
         CANTUS_MODULE._addRequestHeaders.mockReturnValue(mockXhr);
-        var httpMethod = 'FORCE';
-        var url = 'http.//';
-        var data = {'args': 'fargs', 'body': 'schmata'};
-        var loadListener = 1;
-        var errorListener = 2;
-        var abortListener = 3;
+        let httpMethod = 'FORCE';
+        let url = 'http.//';
+        let data = {'args': 'fargs', 'body': 'schmata'};
+        let loadListener = 1;
+        let errorListener = 2;
+        let abortListener = 3;
 
         CANTUS_MODULE._submitAjax(httpMethod, url, data, loadListener, errorListener, abortListener);
 
@@ -449,7 +449,7 @@ describe('_submitAjax', function() {
     });
 
     it('behaves with only one listener function and no request body', function() {
-        var mockXhr = {
+        let mockXhr = {
             addEventListener: jest.genMockFn(),
             open: jest.genMockFn(),
             send: jest.genMockFn()
@@ -458,10 +458,10 @@ describe('_submitAjax', function() {
         CANTUS_MODULE._dumbXhrThing.mockReturnValue(mockXhr);
         CANTUS_MODULE._addRequestHeaders = jest.genMockFn();
         CANTUS_MODULE._addRequestHeaders.mockReturnValue(mockXhr);
-        var httpMethod = 'FORCE';
-        var url = 'http.//';
-        var data = {'args': 'fargs', 'body': null};
-        var loadListener = 1;
+        let httpMethod = 'FORCE';
+        let url = 'http.//';
+        let data = {'args': 'fargs', 'body': null};
+        let loadListener = 1;
 
         CANTUS_MODULE._submitAjax(httpMethod, url, data, loadListener);
 
@@ -475,44 +475,44 @@ describe('_submitAjax', function() {
 
 describe('convertTypeNumber()', () => {
     it('converts singular to plural', () => {
-        var type = 'chant';
-        var to = 'plural';
-        var expected = 'chants';
+        let type = 'chant';
+        let to = 'plural';
+        let expected = 'chants';
         expect(CANTUS_MODULE.convertTypeNumber(type, to)).toBe(expected);
     });
 
     it('converts plural to singular', () => {
-        var type = 'feasts';
-        var to = 'singular';
-        var expected = 'feast';
+        let type = 'feasts';
+        let to = 'singular';
+        let expected = 'feast';
         expect(CANTUS_MODULE.convertTypeNumber(type, to)).toBe(expected);
     });
 
     it('leaves singular as singular', () => {
-        var type = 'genre';
-        var to = 'singular';
-        var expected = 'genre';
+        let type = 'genre';
+        let to = 'singular';
+        let expected = 'genre';
         expect(CANTUS_MODULE.convertTypeNumber(type, to)).toBe(expected);
     });
 
     it('leaves plural as plural', () => {
-        var type = 'notations';
-        var to = 'plural';
-        var expected = 'notations';
+        let type = 'notations';
+        let to = 'plural';
+        let expected = 'notations';
         expect(CANTUS_MODULE.convertTypeNumber(type, to)).toBe(expected);
     });
 
     it('returns undefined with invalid "type"', () => {
-        var type = 'broccoli';
-        var to = 'singular';
-        var expected = undefined;
+        let type = 'broccoli';
+        let to = 'singular';
+        let expected = undefined;
         expect(CANTUS_MODULE.convertTypeNumber(type, to)).toBe(expected);
     });
 
     it('returns undefiend with invalid "to"', () => {
-        var type = 'chants';
-        var to = 'semolina';
-        var expected = undefined;
+        let type = 'chants';
+        let to = 'semolina';
+        let expected = undefined;
         expect(CANTUS_MODULE.convertTypeNumber(type, to)).toBe(expected);
     });
 
