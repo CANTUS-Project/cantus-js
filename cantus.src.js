@@ -28,20 +28,20 @@
 if (!Array.prototype.includes) {
     Array.prototype.includes = function(searchElement /*, fromIndex*/ ) {
         'use strict';
-        var O = Object(this);
-        var len = parseInt(O.length) || 0;
+        let O = Object(this);
+        let len = parseInt(O.length) || 0;
         if (len === 0) {
             return false;
         }
-        var n = parseInt(arguments[1]) || 0;
-        var k;
+        let n = parseInt(arguments[1]) || 0;
+        let k;
         if (n >= 0) {
             k = n;
         } else {
             k = len + n;
             if (k < 0) {k = 0;}
         }
-        var currentElement;
+        let currentElement;
         while (k < len) {
             currentElement = O[k];
             if (searchElement === currentElement ||
@@ -96,7 +96,7 @@ const _ROOT_URL_FAILURE = 'CantusJS: Root URL request failed with code ';
 
 
 // TODO: this is such a hack...
-var _currentThis = null;
+let _currentThis = null;
 
 
 // Module-level functions
@@ -200,7 +200,7 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
     // ========
     // Nothing. However, one of the "listener" functions will be called.
 
-    var xhr = cantusModule._dumbXhrThing();
+    let xhr = cantusModule._dumbXhrThing();
     xhr.open(httpMethod, url);  // NOTE: you must call open() before setting request headers
     xhr = cantusModule._addRequestHeaders(xhr, data.args);
 
@@ -259,7 +259,7 @@ function _findUrlFromType(type, hateoas, defaultAll, id) {
         defaultAll = true;
     }
     type = convertTypeNumber(type, 'plural');
-    var requestUrl;
+    let requestUrl;
 
     // fetch the URL
     if (id) {
@@ -309,7 +309,7 @@ function _prepareSearchRequestBody(query) {
     // Returns:
     // The request body, ready for submission to the Cantus API server.
 
-    var validFields = ['id', 'name', 'description', 'mass_or_office', 'date', 'feast_code',
+    let validFields = ['id', 'name', 'description', 'mass_or_office', 'date', 'feast_code',
         'incipit', 'source', 'marginalia', 'folio', 'sequence', 'office', 'genre', 'position',
         'cantus_id', 'feast', 'mode', 'differentia', 'finalis', 'full_text',
         'full_text_manuscript', 'full_text_simssa', 'volpiano', 'notes', 'cao_concordances',
@@ -323,8 +323,8 @@ function _prepareSearchRequestBody(query) {
     // to set request headers. We'll just ignore them.
     let headerFields = ['page', 'per_page', 'fields', 'sort'];
 
-    var queryStr = '';
-    for (var field in query) {
+    let queryStr = '';
+    for (let field in query) {
         // NB: if we were using proper JavaScript Objects, that inherited members from a prototype,
         //     we would need an additional check with hasOwnProperty()
         if (validFields.includes(field)) {
@@ -364,18 +364,18 @@ function _loadResponse(event, resolve, reject) {
     // NOTE: for a description of the arguments given to the resolve and reject functions, refer to
     // the get() function documentation.
 
-    var xhr = event.target;
+    let xhr = event.target;
     if (200 != xhr.status) {
-        var errObj = {code: xhr.status, reason: xhr.statusText,
+        let errObj = {code: xhr.status, reason: xhr.statusText,
                       response: xhr.status + ': ' + xhr.statusText};
         reject(errObj);
     } else {
         try {
             // prepare the response body
-            var data = JSON.parse(xhr.response);
+            let data = JSON.parse(xhr.response);
             if (undefined === data.sort_order) {
-                var sort_order = [];
-                for (var item in data) {
+                let sort_order = [];
+                for (let item in data) {
                     if ('resources' !== item) {
                         sort_order.push(item);
                     }
@@ -384,7 +384,7 @@ function _loadResponse(event, resolve, reject) {
             }
 
             // prepare the response headers
-            var headers = {
+            let headers = {
                 'version': xhr.getResponseHeader('X-Cantus-Version'),
                 'include_resources': xhr.getResponseHeader('X-Cantus-Include-Resources'),
                 'fields': xhr.getResponseHeader('X-Cantus-Fields'),
@@ -401,11 +401,11 @@ function _loadResponse(event, resolve, reject) {
             resolve(data);
         } catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
-                var errObj = {code: 0, reason: 'internal error',
+                let errObj = {code: 0, reason: 'internal error',
                               response: 'CantusJS: SyntaxError while parsing response.'};
                 reject(errObj);
             } else {
-                var errObj = {code: 0, reason: 'internal error',
+                let errObj = {code: 0, reason: 'internal error',
                               response: 'CantusJS: ' + possibleError.name + ' while parsing response.'};
                 reject(errObj);
                 throw possibleError;
@@ -439,7 +439,7 @@ function _errorRequest(event, reject) {
 
 // The "Cantus" Object
 // ===================
-var Cantus = function (serverUrl) {
+let Cantus = function (serverUrl) {
     _currentThis = this;
     this.setServerUrl(serverUrl);
 };
@@ -537,14 +537,14 @@ Cantus.prototype.get = function(args) {
     // NOTE: keep this in sync with the README
 
     // what we'll return
-    var prom = new Promise(function(resolve, reject) {
+    let prom = new Promise(function(resolve, reject) {
         this._getResolve = resolve;
         this._getReject = reject;
     }.bind(this));
 
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(function() {
-        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true, args['id']);
+        let requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true, args['id']);
         cantusModule._submitAjax('GET', requestUrl, {args: args, body: null}, this._loadGet,
                                  this._errorGet, this._abortGet);
     }.bind(this));
@@ -573,15 +573,16 @@ Cantus.prototype.search = function(args) {
     // NOTE: keep this in sync with the README
 
     // what we'll return
-    var prom = new Promise(function(resolve, reject) {
+    let prom = new Promise(function(resolve, reject) {
         this._searchResolve = resolve;
         this._searchReject = reject;
     }.bind(this));
 
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(function() {
+        let requestBody;
         try {
-            var requestBody = cantusModule._prepareSearchRequestBody(args);
+            requestBody = cantusModule._prepareSearchRequestBody(args);
         } catch (exc) {
             if (exc instanceof QueryError) {
                 this._searchReject(exc.message);
@@ -590,7 +591,7 @@ Cantus.prototype.search = function(args) {
             }
             return prom;
         }
-        var requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
+        let requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
         cantusModule._submitAjax('SEARCH', requestUrl, {args: args, body: requestBody},
                                  this._loadSearch, this._errorSearch, this._abortSearch);
     }.bind(this));
@@ -613,7 +614,7 @@ Cantus.prototype._getHateoas = function() {
 };
 
 Cantus.prototype._loadHateoas = function(event) {
-    var xhr = event.target;
+    let xhr = event.target;
     if (200 != xhr.status) {
         _currentThis._hateoasReject(_ROOT_URL_FAILURE + xhr.status);
     } else {
@@ -622,7 +623,7 @@ Cantus.prototype._loadHateoas = function(event) {
             _currentThis._hateoasResolve(); // TODO: move the "_hateoas-setting" bit to _hateoasResolve so that this can use _loadResponse()
         } catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
-                var errMsg = 'CantusJS: SyntaxError while parsing response from the root URL.';
+                let errMsg = 'CantusJS: SyntaxError while parsing response from the root URL.';
                 _currentThis._hateoasReject(errMsg);
             } else {
                 _currentThis._hateoasReject(possibleError.name);
@@ -657,7 +658,7 @@ Cantus.prototype._errorSearch = function(event) {
 };
 
 
-var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
+let cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
                     _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
                     _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
                     _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders,
