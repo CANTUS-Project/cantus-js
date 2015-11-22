@@ -55,8 +55,7 @@ if (!Array.prototype.includes) {
 }
 
 
-const _typeSingularToPlural = {
-    // actual conversions
+const _TYPE_SINGULAR_TO_PLURAL = {
     'siglum': 'sigla',
     'office': 'offices',
     'indexer': 'indexers',
@@ -71,22 +70,25 @@ const _typeSingularToPlural = {
     'notation': 'notations',
     'genre': 'genres',
     'provenance': 'provenances',
-    // these make it safe to look up an already-plural type name
-    'sigla': 'sigla',
-    'offices': 'offices',
-    'indexers': 'indexers',
-    'centuries': 'centuries',
-    'source_statii': 'source_statii',
-    'chants': 'chants',
-    'sources': 'sources',
-    'cantusids': 'cantusids',
-    'portfolia': 'portfolia',
-    'segments': 'segments',
-    'feasts': 'feasts',
-    'notations': 'notations',
-    'genres': 'genres',
-    'provenances': 'provenances'
-}
+};
+
+
+const _TYPE_PLURAL_TO_SINGULAR = {
+    'sigla': 'siglum',
+    'offices': 'office',
+    'indexers': 'indexer',
+    'centuries': 'century',
+    'source_statii': 'source_status',
+    'chants': 'chant',
+    'sources': 'source',
+    'cantusids': 'cantusid',
+    'portfolia': 'portfolio',
+    'segments': 'segment',
+    'feasts': 'feast',
+    'notations': 'notation',
+    'genres': 'genre',
+    'provenances': 'provenance',
+};
 
 
 // error messages
@@ -99,6 +101,41 @@ var _currentThis = null;
 
 // Module-level functions
 // ======================
+
+function convertTypeNumber(type, to) {
+    // Convert a resource type from singular grammatical number to plural, or vice versa.
+    //
+    // Parameters:
+    // ===========
+    // - type (string) The resource type to convert.
+    // - to (string) Whether to convert the grammatical number to "singular" or "plural".
+    //
+    // Returns:
+    // ========
+    // A string with the resource type in the requested grammatical number. If the "type" is already
+    // in the requested grammatical number, it will be returned as-is. (That is, converting
+    // ``'feasts'`` to plural will safely return ``'feasts'``). If either "type" or "to" are not a
+    // string with a valid type or grammatical number, the function returns ``undefined``.
+    //
+
+    if ('singular' === to) {
+        if (_TYPE_PLURAL_TO_SINGULAR[type]) {
+            return _TYPE_PLURAL_TO_SINGULAR[type];
+        } else if (_TYPE_SINGULAR_TO_PLURAL[type]) {
+            return type;
+        }
+    } else if ('plural' === to) {
+        if (_TYPE_SINGULAR_TO_PLURAL[type]) {
+            return _TYPE_SINGULAR_TO_PLURAL[type];
+        } else if (_TYPE_PLURAL_TO_SINGULAR[type]) {
+            return type;
+        }
+    }
+
+    return undefined;
+}
+
+
 function _addRequestHeaders(xhr, args) {
     // Given an XMLHttpRequest instance and the "args" provided to get() or search(), add any HTTP
     // headers to the XMLHttpRequest as required by the args. All unknown members in "args" are
@@ -221,7 +258,7 @@ function _findUrlFromType(type, hateoas, defaultAll, id) {
     if (undefined === defaultAll) {
         defaultAll = true;
     }
-    type = _typeSingularToPlural[type];
+    type = convertTypeNumber(type, 'plural');
     var requestUrl;
 
     // fetch the URL
@@ -624,7 +661,7 @@ var cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: 
                     _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
                     _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
                     _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders,
-                    _dumbXhrThing:_dumbXhrThing};
+                    _dumbXhrThing:_dumbXhrThing, convertTypeNumber: convertTypeNumber};
 
 
 if ("undefined" !== typeof window) {

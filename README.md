@@ -264,3 +264,31 @@ Submit a SEARCH request to the Cantus server.
 
 The "return behaviour" of this function is identical to get(). Please refer to that
 function's documentation.
+
+
+## Utility Functions
+
+These functions are available on the module object exported from CantusJS. For example, if you
+import CantusJS with a ``<script>`` element in your HTML document, you can use ``convertTypeNumber()``
+like this:
+
+```javascript
+--> cantusjs.convertTypeNumber('chant', 'plural');
+<-- 'chants'
+```
+
+### cantusjs.convertTypeNumber()
+
+Convert a resource type from singular grammatical number to plural, or vice versa.
+
+#### Parameters
+
+- type (string) The resource type to convert.
+- to (string) Whether to convert the grammatical number to "singular" or "plural".
+
+#### Returns
+
+A string with the resource type in the requested grammatical number. If the "type" is already in
+the requested grammatical number, it will be returned as-is. (That is, converting ``'feasts'`` to
+plural will safely return ``'feasts'``). If either "type" or "to" are not a string with a valid
+type or grammatical number, the function returns ``undefined``.
