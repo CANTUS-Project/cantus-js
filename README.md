@@ -292,3 +292,7 @@ A string with the resource type in the requested grammatical number. If the "typ
 the requested grammatical number, it will be returned as-is. (That is, converting ``'feasts'`` to
 plural will safely return ``'feasts'``). If either "type" or "to" are not a string with a valid
 type or grammatical number, the function returns ``undefined``.
+
+### cantusjs.VALID_FIELDS
+
+This is a "const" Array of strings that contains the names of all valid field names.

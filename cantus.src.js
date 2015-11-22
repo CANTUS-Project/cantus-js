@@ -55,6 +55,18 @@ if (!Array.prototype.includes) {
 }
 
 
+const VALID_FIELDS = [
+    'id', 'name', 'description', 'mass_or_office', 'date', 'feast_code', 'incipit', 'source',
+    'marginalia', 'folio', 'sequence', 'office', 'genre', 'position', 'cantus_id', 'feast', 'mode',
+    'differentia', 'finalis', 'full_text', 'full_text_manuscript', 'full_text_simssa', 'volpiano',
+    'notes', 'cao_concordances', 'siglum', 'proofreader', 'melody_id', 'title', 'rism', 'provenance',
+    'century', 'notation_style', 'editors', 'indexers', 'summary', 'liturgical_occasion',
+    'indexing_notes', 'indexing_date', 'display_name', 'given_name', 'family_name', 'institution',
+    'city', 'country', 'source_id', 'office_id', 'genre_id', 'feast_id', 'provenance_id',
+    'century_id','notation_style_id', 'any', 'type'
+];
+
+
 const _TYPE_SINGULAR_TO_PLURAL = {
     'siglum': 'sigla',
     'office': 'offices',
@@ -309,16 +321,6 @@ function _prepareSearchRequestBody(query) {
     // Returns:
     // The request body, ready for submission to the Cantus API server.
 
-    let validFields = ['id', 'name', 'description', 'mass_or_office', 'date', 'feast_code',
-        'incipit', 'source', 'marginalia', 'folio', 'sequence', 'office', 'genre', 'position',
-        'cantus_id', 'feast', 'mode', 'differentia', 'finalis', 'full_text',
-        'full_text_manuscript', 'full_text_simssa', 'volpiano', 'notes', 'cao_concordances',
-        'siglum', 'proofreader', 'melody_id', 'title', 'rism', 'provenance', 'century',
-        'notation_style', 'editors', 'indexers', 'summary', 'liturgical_occasion',
-        'indexing_notes', 'indexing_date', 'display_name', 'given_name', 'family_name',
-        'institution', 'city', 'country', 'source_id', 'office_id', 'genre_id', 'feast_id',
-        'provenance_id', 'century_id','notation_style_id', 'any', 'type'];
-
     // These aren't search fields, but they may appear in the "query" argument because they're used
     // to set request headers. We'll just ignore them.
     let headerFields = ['page', 'per_page', 'fields', 'sort'];
@@ -327,7 +329,7 @@ function _prepareSearchRequestBody(query) {
     for (let field in query) {
         // NB: if we were using proper JavaScript Objects, that inherited members from a prototype,
         //     we would need an additional check with hasOwnProperty()
-        if (validFields.includes(field)) {
+        if (VALID_FIELDS.includes(field)) {
             if ('any' === field) {
                 queryStr += ' ' + query['any'];
             } else if ('type' === field) {
@@ -658,11 +660,13 @@ Cantus.prototype._errorSearch = function(event) {
 };
 
 
-let cantusModule = {Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
-                    _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
-                    _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
-                    _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders,
-                    _dumbXhrThing:_dumbXhrThing, convertTypeNumber: convertTypeNumber};
+const cantusModule = {
+    Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
+    _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
+    _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
+    _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders, _dumbXhrThing:_dumbXhrThing,
+    convertTypeNumber: convertTypeNumber, VALID_FIELDS: VALID_FIELDS
+};
 
 
 if ("undefined" !== typeof window) {
