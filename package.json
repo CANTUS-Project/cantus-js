@@ -1,6 +1,6 @@
 {
     "name": "cantus",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "It's a simple JavaScript library for accessing a Cantus API server.",
     "keywords": ["music", "musicology", "mediaeval", "Gregorian chant", "manuscript"],
     "homepage": "https://github.com/CANTUS-Project/cantus-js",
@@ -10,12 +10,30 @@
                "email": "christopher@antila.ca",
                "url": "http://christopher.antila.ca/"},
     "repository": {"type": "git", "url": "https://github.com/CANTUS-Project/cantus-js.git"},
-    "scripts": {"test": "runtests"},
     "devDependencies": {
-        "jest-cli": "*",
-        "babelify": "6.2.x",
-        "browserify": "11.0.x",
+        "babelify": "^7.0",
+        "babel-jest": "6.x",
+        "babel-preset-es2015": "6.1.x",
+        "browserify": "11.x",
+        "jest-cli": "0.7.x",
         "minifyify": "7.1.x"
     },
-    "browserify": {"transform": [["babelify", {"modules": "ignore"}]]}
+    "browserify": {
+        "transform": [["babelify", {"modules": "ignore"}]]
+    },
+    "scripts": {
+        "build": "build_for_deployment",
+        "test": "jest"
+    },
+    "jest": {
+        "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
+        "testFileExtensions": ["es6", "js"],
+        "moduleFileExtensions": ["js", "json", "es6"],
+        "testDirectoryName": "tests"
+    },
+    "babel": {
+        "presets": ["es2015"],
+        "comments": true,
+        "compact": false
+    }
 }
