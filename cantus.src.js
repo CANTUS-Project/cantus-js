@@ -667,4 +667,5 @@ const cantusModule = {
     convertTypeNumber: convertTypeNumber, VALID_FIELDS: VALID_FIELDS
 };
 
+export {cantusModule};
 export default cantusModule;
