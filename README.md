@@ -1,6 +1,8 @@
 # CantusJS
 
-It's a simple JavaScript library for accessing a Cantus API server.
+A JavaScript library for accessing a Cantus API server.
+
+[![Build Status](!https://img.shields.io/travis/CANTUS-Project/cantus-js.svg?style=flat-square)](https://travis-ci.org/CANTUS-Project/cantus-js)
 
 ## License
 
