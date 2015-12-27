@@ -114,6 +114,27 @@ let _currentThis = null;
 // Module-level functions
 // ======================
 
+/**  Add " and " to a string if there is a space in it, and the contents are not already quoted.
+ *
+ * @param (str) string - The string to quote.
+ * @returns (str) The quoted string.
+ */
+function quoteIfNeeded(string) {
+    if  (   (string.indexOf(' ') >= 0)
+        &&  (   string.length < 2
+            || (   !(string.charAt(0) === '"' && string.charAt(string.length - 1) === '"')
+                && !(string.charAt(0) === "'" && string.charAt(string.length - 1) === "'")
+               )
+            )
+        )
+        {
+           string = `"${string}"`;
+    }
+
+    return string;
+};
+
+
 function convertTypeNumber(type, to) {
     // Convert a resource type from singular grammatical number to plural, or vice versa.
     //
@@ -334,7 +355,7 @@ function _prepareSearchRequestBody(query) {
                 queryStr += ' ' + query['any'];
             } else if ('type' !== field) {
                 // ignore "type"
-                queryStr += ' ' + field + ':' + query[field];
+                queryStr += ' ' + field + ':' + quoteIfNeeded(query[field]);
             }
         } else if (!headerFields.includes(field)) {
             throw new QueryError('Invalid field in query: "' + field + '"');
@@ -664,7 +685,7 @@ const cantusModule = {
     _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
     _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
     _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders, _dumbXhrThing:_dumbXhrThing,
-    convertTypeNumber: convertTypeNumber, VALID_FIELDS: VALID_FIELDS
+    convertTypeNumber: convertTypeNumber, VALID_FIELDS: VALID_FIELDS, quoteIfNeeded: quoteIfNeeded,
 };
 
 export {cantusModule};

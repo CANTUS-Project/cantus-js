@@ -204,7 +204,8 @@ describe('_prepareSearchRequestBody()', function() {
     });
 
     it('works with three regular query arguments', function() {
-        let query = {'name': 'one', 'feast': '"item two"', 'date': 'three'};
+        let query = {'name': 'one', 'feast': 'item two', 'date': 'three'};
+        // NOTE: also make sure it calls quoteIfNeeded()
         // The output will literally include a backslash followed by a double-quote, because that's
         // how it has to be encoded to a JSON string.
         let expected = '{"query":"name:one feast:\\\"item two\\\" date:three"}';
@@ -516,4 +517,38 @@ describe('convertTypeNumber()', () => {
         expect(CANTUS_MODULE.convertTypeNumber(type, to)).toBe(expected);
     });
 
+});
+
+
+describe('quoteIfNeeded()', () => {
+
+    it('does not quote a string without spaces', () => {
+        const string = 'winthorpe';
+        const expected = 'winthorpe';
+        expect(CANTUS_MODULE.quoteIfNeeded(string)).toBe(expected);
+    });
+
+    it('does quote a string with a space', () => {
+        const string = 'win thorpe';
+        const expected = '"win thorpe"';
+        expect(CANTUS_MODULE.quoteIfNeeded(string)).toBe(expected);
+    });
+
+    it('does not quote a string with a space and double quotes', () => {
+        const string = '"win thorpe"';
+        const expected = '"win thorpe"';
+        expect(CANTUS_MODULE.quoteIfNeeded(string)).toBe(expected);
+    });
+
+    it('does not quote a string with a space and single quotes', () => {
+        const string = "'win thorpe'";
+        const expected = "'win thorpe'";
+        expect(CANTUS_MODULE.quoteIfNeeded(string)).toBe(expected);
+    });
+
+    it('does quote a string that is a single space', () => {
+        const string = ' ';
+        const expected = '" "';
+        expect(CANTUS_MODULE.quoteIfNeeded(string)).toBe(expected);
+    });
 });
