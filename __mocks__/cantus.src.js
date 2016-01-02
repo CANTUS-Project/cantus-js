@@ -6,7 +6,7 @@
 // Filename:               __mocks__/cantus.src.js
 // Purpose:                CantusJS mock for Vitrail.
 //
-// Copyright (C) 2015 Christopher Antila
+// Copyright (C) 2015, 2016 Christopher Antila
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -23,15 +23,16 @@
 //-------------------------------------------------------------------------------------------------
 
 // The goal of mocking CantusJS at all is to prevent the variability (and burden) of using a real
-// Abbot server in the Vitrail test suite. However, Vitrail uses VALID_FILEDS and convertTypeNumber()
-// which don't access Abbot, and can therefore safely remain unmocked.
+// Abbot server in the Vitrail test suite.
+//
+// Because CantusJS is basically an internal module, and I know it's... well, it's as trustworthy
+// as I make it, I don't mind using the actual implementation *except* where it makes network
+// requests. Therefore, this custom mock modifies the actual CantusJS module in the following ways:
+// - mocking cantusModule._submitAjax
 
 const cantusModule = require.requireActual('../cantus.src');
-let cantusMock = jest.genMockFromModule('../cantus.src');
+
+cantusModule.cantusModule._submitAjax = jest.genMockFunction();
 
 
-cantusMock.cantusModule.VALID_FIELDS = cantusModule.cantusModule.VALID_FIELDS;
-cantusMock.cantusModule.convertTypeNumber = cantusModule.cantusModule.convertTypeNumber;
-
-
-module.exports = cantusMock;
+module.exports = cantusModule;
