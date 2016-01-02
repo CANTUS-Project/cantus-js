@@ -28,11 +28,28 @@
 // Because CantusJS is basically an internal module, and I know it's... well, it's as trustworthy
 // as I make it, I don't mind using the actual implementation *except* where it makes network
 // requests. Therefore, this custom mock modifies the actual CantusJS module in the following ways:
-// - mocking cantusModule._submitAjax
+//
+// - mocking cantusModule._submitAjax (so no AJAX requests are submitted)
+// - mocking Cantus.search()
+// - mocking Cantus.get()
+//
+// The search() and get() functions are mocked so you can make assertions on how they were called.
+// They return a Promise that is never fulfilled.
+//
+// NOTE: if you need to make assertions about the Promises returned by search() and get(), you can
+// simply change the return value. But PLEASE be kind to other modules, and use mockReturnValueOnce().
+//
 
 const cantusModule = require.requireActual('../cantus.src');
 
 cantusModule.cantusModule._submitAjax = jest.genMockFunction();
+
+function liar() { return new Promise(()=>{}, ()=>{}); }
+
+cantusModule.cantusModule.Cantus.prototype.search = jest.genMockFunction();
+cantusModule.cantusModule.Cantus.prototype.search.mockImplementation(liar);
+cantusModule.cantusModule.Cantus.prototype.get = jest.genMockFunction();
+cantusModule.cantusModule.Cantus.prototype.get.mockImplementation(liar);
 
 
 module.exports = cantusModule;
