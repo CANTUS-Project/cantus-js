@@ -28,17 +28,36 @@ const CANTUS_MODULE = require('../cantus.src').default;
 
 
 describe('get()', function() {
-    it('behaves properly', function() {
+    beforeAll(() => {
+        this._submitAjax = CANTUS_MODULE._submitAjax;
+        this._findUrlFromType = CANTUS_MODULE._findUrlFromType;
+        this._loadResponse = CANTUS_MODULE._loadResponse;
+        this._abortRequest = CANTUS_MODULE._abortRequest;
+        this._errorRequest = CANTUS_MODULE._erroRequest;
+    });
+    beforeEach(() => {
         CANTUS_MODULE._submitAjax = jest.genMockFn();
         CANTUS_MODULE._findUrlFromType = jest.genMockFn();
         CANTUS_MODULE._findUrlFromType.mockReturnValue('fakeurl');
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
-        cantus._hateoas = {'browse': 'some URLs and stuff'};
-        let resolveReady = null;
-        cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
-        let args = {'type': 'chant', 'id': 'what'};
+        CANTUS_MODULE._loadResponse = jest.genMockFn();
+        CANTUS_MODULE._abortRequest = jest.genMockFn();
+        CANTUS_MODULE._errorRequest = jest.genMockFn();
+    });
+    afterAll(() => {
+        CANTUS_MODULE._submitAjax = this._submitAjax;
+        CANTUS_MODULE._findUrlFromType = this._findUrlFromType;
+        CANTUS_MODULE._loadResponse = this._loadResponse;
+        CANTUS_MODULE._abortRequest = this._abortRequest;
+        CANTUS_MODULE._erroRequest = this._errorRequest;
+    });
 
-        let actual = cantus.get(args);
+    it('behaves properly', () => {
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
+        cantus._hateoas = {'browse': 'some URLs and stuff'};
+        cantus.ready = {then: (func) => {func()}};  // mock promise that calls "then" right away
+        const args = {'type': 'chant', 'id': 'what'};
+
+        const actual = cantus.get(args);
 
         expect(CANTUS_MODULE._submitAjax.mock.calls.length).toBe(2);
         expect(CANTUS_MODULE._submitAjax).toBeCalledWith(
@@ -51,39 +70,33 @@ describe('get()', function() {
         expect(actual instanceof Promise).toBe(true);
     });
 
-    it('_loadGet() properly delegates to _loadResponse()', function() {
-        CANTUS_MODULE._submitAjax = jest.genMockFn();
-        CANTUS_MODULE._loadResponse = jest.genMockFn();
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
+    it('_loadGet() properly delegates to _loadResponse()', () => {
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._getResolve = 5;
         cantus._getReject = 6;
-        let mockEvent = 4;
+        const mockEvent = 4;
 
         cantus._loadGet(mockEvent);
 
         expect(CANTUS_MODULE._loadResponse).toBeCalledWith(4, 5, 6);
     });
 
-    it('_abortGet() properly delegates to _abortRequest()', function() {
-        CANTUS_MODULE._submitAjax = jest.genMockFn();
-        CANTUS_MODULE._abortRequest = jest.genMockFn();
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
+    it('_abortGet() properly delegates to _abortRequest()', () => {
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._getResolve = 5;
         cantus._getReject = 6;
-        let mockEvent = 4;
+        const mockEvent = 4;
 
         cantus._abortGet(mockEvent);
 
         expect(CANTUS_MODULE._abortRequest).toBeCalledWith(4, 6);
     });
 
-    it('_errorGet() properly delegates to _errorRequest()', function() {
-        CANTUS_MODULE._submitAjax = jest.genMockFn();
-        CANTUS_MODULE._errorRequest = jest.genMockFn();
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
+    it('_errorGet() properly delegates to _errorRequest()', () => {
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._getResolve = 5;
         cantus._getReject = 6;
-        let mockEvent = 4;
+        const mockEvent = 4;
 
         cantus._errorGet(mockEvent);
 
@@ -91,24 +104,41 @@ describe('get()', function() {
     });
 });
 
+
 describe('search()', function() {
-    it('works with a valid query', function() {
+    beforeAll(() => {
+        this._submitAjax = CANTUS_MODULE._submitAjax;
+        this._findUrlFromType = CANTUS_MODULE._findUrlFromType;
+        this._loadResponse = CANTUS_MODULE._loadResponse;
+        this._abortRequest = CANTUS_MODULE._abortRequest;
+        this._errorRequest = CANTUS_MODULE._erroRequest;
+    });
+    beforeEach(() => {
         CANTUS_MODULE._submitAjax = jest.genMockFn();
         CANTUS_MODULE._findUrlFromType = jest.genMockFn();
         CANTUS_MODULE._findUrlFromType.mockReturnValue('fakeurl');
-        CANTUS_MODULE._prepareSearchRequestBody = jest.genMockFn();
-        CANTUS_MODULE._prepareSearchRequestBody.mockReturnValue('fakequery');
-        let args = {'type': 'chant', 'incipit': 'deus'};
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
+        CANTUS_MODULE._loadResponse = jest.genMockFn();
+        CANTUS_MODULE._abortRequest = jest.genMockFn();
+        CANTUS_MODULE._errorRequest = jest.genMockFn();
+    });
+    afterAll(() => {
+        CANTUS_MODULE._submitAjax = this._submitAjax;
+        CANTUS_MODULE._findUrlFromType = this._findUrlFromType;
+        CANTUS_MODULE._loadResponse = this._loadResponse;
+        CANTUS_MODULE._abortRequest = this._abortRequest;
+        CANTUS_MODULE._erroRequest = this._errorRequest;
+    });
+
+    it('works with a valid query', () => {
+        const args = {'type': 'chant', 'incipit': 'deus'};
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._hateoas = {'browse': 'some URLs and stuff'};
-        let resolveReady = null;
         cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
 
-        let actual = cantus.search(args);
+        const actual = cantus.search(args);
 
-        expect(CANTUS_MODULE._prepareSearchRequestBody).toBeCalledWith(args);
         expect(CANTUS_MODULE._submitAjax).toBeCalledWith(
-            'SEARCH', 'fakeurl', {args: args, body: 'fakequery'}, cantus._loadSearch,
+            'SEARCH', 'fakeurl', {args: args, body: '{"query":"incipit:deus"}'}, cantus._loadSearch,
             cantus._errorSearch, cantus._abortSearch
         );
         expect(CANTUS_MODULE._findUrlFromType).toBeCalledWith('chant', cantus._hateoas, true);
@@ -117,82 +147,51 @@ describe('search()', function() {
         expect(actual instanceof Promise).toBe(true);
     });
 
-    it('rejects the Promise with an invalid query', function() {
-        CANTUS_MODULE._submitAjax = jest.genMockFn();
-        CANTUS_MODULE._findUrlFromType = jest.genMockFn();
-        CANTUS_MODULE._findUrlFromType.mockReturnValue('fakeurl');
-        CANTUS_MODULE._prepareSearchRequestBody = jest.genMockFn();
-        CANTUS_MODULE._prepareSearchRequestBody.mockImpl(function() {throw new CANTUS_MODULE._QueryError()});
-        let args = {'type': 'chant', 'cats': '"they meow"'};
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
+    it('rejects the Promise with an invalid query', () => {
+        const args = {'type': 'chant', 'cats': '"they meow"'};
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._hateoas = {'browse': 'some URLs and stuff'};
-        let resolveReady = null;
-        cantus.ready = {then: function(func){func()}};  // mock promise that calls "then" right away
-        // This Promise is resolved when the "then" or "catch" function is triggered on the Promise
-        // returned by the function-under-test.
-        let testAccept = null;
-        let testPromise = new Promise(function(resolve, reject) { testAccept = resolve; });
+        cantus.ready = {then: (func) => {func();}};  // mock promise that calls "then" right away
 
-        let actual = cantus.search(args);
-        actual
-            .then(function() { testAccept('then'); })
-            .catch(function() { testAccept('catch'); })
+        const actual = cantus.search(args);
 
-        testPromise.then(function(calledFrom) {
-            // "calledFrom" tells us whether we're being called from the "then" function on the
-            // Promise returned by the function-under-test, or from the "catch" function on same.
-            // We hope to be called from the "catch" function.
-            //
-            // Unfortunately, we can't make the test fail at this point, but we can at least make
-            // sure we're called from the right function, and print a tough-to-ignore note if not.
-
-            if ('catch' !== calledFrom) {
-                console.log('\n!!!! HEY HEY HEY HEY HEY !!!!\n\nTEST ACTUALLY FAILED\n' +
-                            'LOOK IN THE testPromise.then() FUNCTION IN "rejects the Promise with an invalid query"\n' +
-                            'TEST ACTUALLY FAILED\n\n!!!! HEY HEY HEY HEY HEY !!!!\n');
-            }
-        });
-
-        expect(CANTUS_MODULE._prepareSearchRequestBody).toBeCalledWith(args);
         expect(CANTUS_MODULE._submitAjax.mock.calls.length).toBe(1);  // only on initialization
         expect(typeof cantus._searchResolve).toBe('function');
         expect(typeof cantus._searchReject).toBe('function');
         expect(actual instanceof Promise).toBe(true);
+
+        return actual.catch((errMsg) => {
+            expect(errMsg.slice(0, 22)).toBe('Invalid field in query');
+        });
     });
 
-    it('_loadSearch() properly delegates to _loadResponse()', function() {
-        CANTUS_MODULE._submitAjax = jest.genMockFn();
-        CANTUS_MODULE._loadResponse = jest.genMockFn();
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
+    it('_loadSearch() properly delegates to _loadResponse()', () => {
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._searchResolve = 5;
         cantus._searchReject = 6;
-        let mockEvent = 4;
+        const mockEvent = 4;
 
         cantus._loadSearch(mockEvent);
 
         expect(CANTUS_MODULE._loadResponse).toBeCalledWith(4, 5, 6);
     });
 
-    it('_abortSearch() properly delegates to _abortRequest()', function() {
-        CANTUS_MODULE._submitAjax = jest.genMockFn();
-        CANTUS_MODULE._abortRequest = jest.genMockFn();
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
+    it('_abortSearch() properly delegates to _abortRequest()', () => {
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._searchResolve = 5;
         cantus._searchReject = 6;
-        let mockEvent = 4;
+        const mockEvent = 4;
 
         cantus._abortSearch(mockEvent);
 
         expect(CANTUS_MODULE._abortRequest).toBeCalledWith(4, 6);
     });
 
-    it('_errorSearch() properly delegates to _errorRequest()', function() {
-        CANTUS_MODULE._submitAjax = jest.genMockFn();
-        CANTUS_MODULE._errorRequest = jest.genMockFn();
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
+    it('_errorSearch() properly delegates to _errorRequest()', () => {
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._searchResolve = 5;
         cantus._searchReject = 6;
-        let mockEvent = 4;
+        const mockEvent = 4;
 
         cantus._errorSearch(mockEvent);
 

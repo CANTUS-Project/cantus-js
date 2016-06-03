@@ -530,13 +530,13 @@ Cantus.prototype.get = function get(args) {
  * @returns {Promise} The same as get(). Please refer to that function's documentation.
  */
 Cantus.prototype.search = function search(args) {
-    const prom = new Promise(function(resolve, reject) {
+    const prom = new Promise((resolve, reject) => {
         this._searchResolve = resolve;
         this._searchReject = reject;
-    }.bind(this));
+    });
 
     // the actual request stuff; may be run *after* the function returns!
-    this.ready.then(function() {
+    this.ready.then(() => {
         let requestBody;
         try {
             requestBody = cantusModule._prepareSearchRequestBody(args);
@@ -553,7 +553,7 @@ Cantus.prototype.search = function search(args) {
         const requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
         cantusModule._submitAjax('SEARCH', requestUrl, {args: args, body: requestBody},
                                  this._loadSearch, this._errorSearch, this._abortSearch);
-    }.bind(this));
+    });
 
     // return the promise
     return prom;
