@@ -19,7 +19,7 @@
         "minifyify": "7.3.x"
     },
     "browserify": {
-        "transform": [["babelify", {"modules": "ignore"}]]
+        "transform": [["babelify", {"sourceType": "module"}]]
     },
     "scripts": {
         "build": "build_for_deployment",

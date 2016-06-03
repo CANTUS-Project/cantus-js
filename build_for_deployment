@@ -5,4 +5,4 @@
 # This file exists mostly so I don't have to remember all the stupid arguments.
 #
 
-exec `browserify cantus.src.js -o cantus.js -d -p [minifyify --no-map]`
+exec `node_modules/.bin/browserify cantus.src.js -o cantus.js -d -p [minifyify --no-map]`
