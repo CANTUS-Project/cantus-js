@@ -1,12 +1,12 @@
 // -*- coding: utf-8 -*-
-//-------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Program Name:           CantusJS
 // Program Description:    It's a simple JavaScript library for accessing a Cantus API server.
 //
 // Filename:               cantus.src.js
 // Purpose:                It's the whole thing.
 //
-// Copyright (C) 2015 Christopher Antila
+// Copyright (C) 2015, 2016 Christopher Antila
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -20,39 +20,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//-------------------------------------------------------------------------------------------------
-
-
-// This is a polyfill for the Array.includes() function. Copied from:
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes
-if (!Array.prototype.includes) {
-    Array.prototype.includes = function(searchElement /*, fromIndex*/ ) {
-        'use strict';
-        let O = Object(this);
-        let len = parseInt(O.length) || 0;
-        if (len === 0) {
-            return false;
-        }
-        let n = parseInt(arguments[1]) || 0;
-        let k;
-        if (n >= 0) {
-            k = n;
-        } else {
-            k = len + n;
-            if (k < 0) {k = 0;}
-        }
-        let currentElement;
-        while (k < len) {
-            currentElement = O[k];
-            if (searchElement === currentElement ||
-                (searchElement !== searchElement && currentElement !== currentElement)) {
-                    return true;
-                }
-            k++;
-        }
-        return false;
-    };
-}
+// ------------------------------------------------------------------------------------------------
 
 
 const VALID_FIELDS = [
@@ -348,7 +316,7 @@ function _prepareSearchRequestBody(query) {
     for (let field in query) {
         // NB: if we were using proper JavaScript Objects, that inherited members from a prototype,
         //     we would need an additional check with hasOwnProperty()
-        if (VALID_FIELDS.includes(field)) {
+        if (VALID_FIELDS.indexOf(field) >= 0) {
             if ('any' === field) {
                 queryStr += ' ' + query['any'];
             } else if ('type' !== field) {
@@ -359,7 +327,7 @@ function _prepareSearchRequestBody(query) {
                     queryStr += ' ' + field + ':' + quoteIfNeeded(query[field]);
                 }
             }
-        } else if (!headerFields.includes(field)) {
+        } else if (headerFields.indexOf(field) < 0) {
             throw new QueryError('Invalid field in query: "' + field + '"');
         }
     }
