@@ -74,9 +74,6 @@ const _TYPE_PLURAL_TO_SINGULAR = {  // eslint-disable-line id-length
 const _ROOT_URL_FAILURE = 'CantusJS: Root URL request failed with code ';
 
 
-let _currentThis = null;
-
-
 // Module-level functions
 // ======================
 
@@ -413,7 +410,6 @@ function _errorRequest(event, reject) {
 // The "Cantus" Object
 // ===================
 const Cantus = function Cantus(serverUrl) {
-    _currentThis = this;
     this.setServerUrl(serverUrl);
 };
 
@@ -579,20 +575,20 @@ Cantus.prototype._getHateoas = function _getHateoas() {
 Cantus.prototype._loadHateoas = function _loadHateoas(event) {
     const xhr = event.target;
     if (200 !== xhr.status) {
-        _currentThis._hateoasReject(_ROOT_URL_FAILURE + xhr.status);
+        this._hateoasReject(_ROOT_URL_FAILURE + xhr.status);
     }
     else {
         try {
-            _currentThis._hateoas = JSON.parse(xhr.response).resources;
-            _currentThis._hateoasResolve(); // TODO: move the "_hateoas-setting" bit to _hateoasResolve so that this can use _loadResponse()
+            this._hateoas = JSON.parse(xhr.response).resources;
+            this._hateoasResolve(); // TODO: move the "_hateoas-setting" bit to _hateoasResolve so that this can use _loadResponse()
         }
         catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
                 const errMsg = 'CantusJS: SyntaxError while parsing response from the root URL.';
-                _currentThis._hateoasReject(errMsg);
+                this._hateoasReject(errMsg);
             }
             else {
-                _currentThis._hateoasReject(possibleError.name);
+                this._hateoasReject(possibleError.name);
                 throw possibleError;
             }
         }
@@ -600,27 +596,27 @@ Cantus.prototype._loadHateoas = function _loadHateoas(event) {
 };
 
 Cantus.prototype._loadGet = function _loadGet(event) {
-    cantusModule._loadResponse(event, _currentThis._getResolve, _currentThis._getReject);
+    cantusModule._loadResponse(event, this._getResolve, this._getReject);
 };
 
 Cantus.prototype._abortGet = function _abortGet(event) {
-    cantusModule._abortRequest(event, _currentThis._getReject);
+    cantusModule._abortRequest(event, this._getReject);
 };
 
 Cantus.prototype._errorGet = function _errorGet(event) {
-    cantusModule._errorRequest(event, _currentThis._getReject);
+    cantusModule._errorRequest(event, this._getReject);
 };
 
 Cantus.prototype._loadSearch = function _loadSearch(event) {
-    cantusModule._loadResponse(event, _currentThis._searchResolve, _currentThis._searchReject);
+    cantusModule._loadResponse(event, this._searchResolve, this._searchReject);
 };
 
 Cantus.prototype._abortSearch = function _abortSearch(event) {
-    cantusModule._abortRequest(event, _currentThis._searchReject);
+    cantusModule._abortRequest(event, this._searchReject);
 };
 
 Cantus.prototype._errorSearch = function _errorSearch(event) {
-    cantusModule._errorRequest(event, _currentThis._searchReject);
+    cantusModule._errorRequest(event, this._searchReject);
 };
 
 
