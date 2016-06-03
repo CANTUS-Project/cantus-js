@@ -70,6 +70,35 @@ describe('get()', function() {
         expect(actual instanceof Promise).toBe(true);
     });
 
+    it('rejects the Promise when the resource type is invalid', () => {
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
+        CANTUS_MODULE._findUrlFromType = this._findUrlFromType;  // unmock!
+        cantus._hateoas = {'view': {'chant': '123'}};
+        cantus.ready = {then: (func) => {func()}};  // mock promise that calls "then" right away
+        const args = {'type': 'rabbit', 'id': 'what'};
+
+        const actual = cantus.get(args);
+
+        return actual.catch((errMsg) => {
+            expect(errMsg.slice(0, 24)).toBe('Could not find a URL for');
+        });
+    });
+
+    it('rejects the Promise when another error happens', () => {
+        // giving an invalid HATEOAS dict to _findUrlFromType() leads to a TypeError
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
+        CANTUS_MODULE._findUrlFromType = this._findUrlFromType;  // unmock!
+        cantus._hateoas = {'fffffffffff': 14};
+        cantus.ready = {then: (func) => {func()}};  // mock promise that calls "then" right away
+        const args = {'type': 'rabbit', 'id': 'what'};
+
+        const actual = cantus.get(args);
+
+        return actual.catch((errMsg) => {
+            expect(errMsg).toBe('Unrecoverable error while parsing query');
+        });
+    });
+
     it('_loadGet() properly delegates to _loadResponse()', () => {
         const cantus = new CANTUS_MODULE.Cantus('theserver');
         cantus._getResolve = 5;
@@ -150,18 +179,42 @@ describe('search()', function() {
     it('rejects the Promise with an invalid query', () => {
         const args = {'type': 'chant', 'cats': '"they meow"'};
         const cantus = new CANTUS_MODULE.Cantus('theserver');
-        cantus._hateoas = {'browse': 'some URLs and stuff'};
+        cantus._hateoas = {'browse': {'chant': '123'}};
         cantus.ready = {then: (func) => {func();}};  // mock promise that calls "then" right away
 
         const actual = cantus.search(args);
 
-        expect(CANTUS_MODULE._submitAjax.mock.calls.length).toBe(1);  // only on initialization
-        expect(typeof cantus._searchResolve).toBe('function');
-        expect(typeof cantus._searchReject).toBe('function');
-        expect(actual instanceof Promise).toBe(true);
-
         return actual.catch((errMsg) => {
             expect(errMsg.slice(0, 22)).toBe('Invalid field in query');
+        });
+    });
+
+    it('rejects the Promise when the resource type is invalid', () => {
+        const args = {'type': 'rabbit', 'incipit': '"meow in excelsis*"'};
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
+        CANTUS_MODULE._findUrlFromType = this._findUrlFromType;  // unmock!
+        cantus._hateoas = {'browse': {'chant': '123'}};
+        cantus.ready = {then: (func) => {func()}};  // mock promise that calls "then" right away
+
+        const actual = cantus.search(args);
+
+        return actual.catch((errMsg) => {
+            expect(errMsg.slice(0, 24)).toBe('Could not find a URL for');
+        });
+    });
+
+    it('rejects the Promise when another error happens', () => {
+        // giving an invalid HATEOAS dict to _findUrlFromType() leads to a TypeError
+        const args = {'type': 'chant', 'incipit': '"meow in excelsis*"'};
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
+        CANTUS_MODULE._findUrlFromType = this._findUrlFromType;  // unmock!
+        cantus._hateoas = {'fffffffffff': 14};
+        cantus.ready = {then: (func) => {func()}};  // mock promise that calls "then" right away
+
+        const actual = cantus.search(args);
+
+        return actual.catch((errMsg) => {
+            expect(errMsg).toBe('Unrecoverable error while parsing query');
         });
     });
 

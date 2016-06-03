@@ -501,17 +501,28 @@ Cantus.prototype.setServerUrl = function setServerUrl(toThis) {
  */
 Cantus.prototype.get = function get(args) {
     // what we'll return
-    const prom = new Promise(function(resolve, reject) {
+    const prom = new Promise((resolve, reject) => {
         this._getResolve = resolve;
         this._getReject = reject;
-    }.bind(this));
+    });
 
     // the actual request stuff; may be run *after* the function returns!
-    this.ready.then(function() {
-        const requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true, args.id);
+    this.ready.then(() => {
+        let requestUrl;
+        try {
+            requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true, args.id);
+        }
+        catch (exc) {
+            if (exc instanceof HateoasError) {
+                this._getReject(exc.message);
+            }
+            else {
+                this._getReject('Unrecoverable error while parsing query');
+            }
+        }
         cantusModule._submitAjax('GET', requestUrl, {args: args, body: null}, this._loadGet,
                                  this._errorGet, this._abortGet);
-    }.bind(this));
+    });
 
     // return the promise
     return prom;
@@ -537,11 +548,13 @@ Cantus.prototype.search = function search(args) {
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(() => {
         let requestBody;
+        let requestUrl;
         try {
             requestBody = cantusModule._prepareSearchRequestBody(args);
+            requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
         }
         catch (exc) {
-            if (exc instanceof QueryError) {
+            if (exc instanceof QueryError || exc instanceof HateoasError) {
                 this._searchReject(exc.message);
             }
             else {
@@ -549,7 +562,6 @@ Cantus.prototype.search = function search(args) {
             }
             return prom;
         }
-        const requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
         cantusModule._submitAjax('SEARCH', requestUrl, {args: args, body: requestBody},
                                  this._loadSearch, this._errorSearch, this._abortSearch);
     });
