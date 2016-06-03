@@ -22,7 +22,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // ------------------------------------------------------------------------------------------------
 
-require('es6-promise').polyfill();
 
 const VALID_FIELDS = [
     'id', 'name', 'description', 'mass_or_office', 'date', 'feast_code', 'incipit', 'source',
