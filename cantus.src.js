@@ -31,41 +31,41 @@ const VALID_FIELDS = [
     'century', 'notation_style', 'editors', 'indexers', 'summary', 'liturgical_occasion',
     'indexing_notes', 'indexing_date', 'display_name', 'given_name', 'family_name', 'institution',
     'city', 'country', 'source_id', 'office_id', 'genre_id', 'feast_id', 'provenance_id',
-    'century_id','notation_style_id', 'any', 'type'
+    'century_id', 'notation_style_id', 'any', 'type',
 ];
 
 
-const _TYPE_SINGULAR_TO_PLURAL = {
-    'siglum': 'sigla',
-    'office': 'offices',
-    'indexer': 'indexers',
-    'century': 'centuries',
-    'source_status': 'source_statii',
-    'chant': 'chants',
-    'source': 'sources',
-    'portfolio': 'portfolia',
-    'segment': 'segments',
-    'feast': 'feasts',
-    'notation': 'notations',
-    'genre': 'genres',
-    'provenance': 'provenances',
+const _TYPE_SINGULAR_TO_PLURAL = {  // eslint-disable-line id-length
+    siglum: 'sigla',
+    office: 'offices',
+    indexer: 'indexers',
+    century: 'centuries',
+    source_status: 'source_statii',  // eslint-disable-line camelcase
+    chant: 'chants',
+    source: 'sources',
+    portfolio: 'portfolia',
+    segment: 'segments',
+    feast: 'feasts',
+    notation: 'notations',
+    genre: 'genres',
+    provenance: 'provenances',
 };
 
 
-const _TYPE_PLURAL_TO_SINGULAR = {
-    'sigla': 'siglum',
-    'offices': 'office',
-    'indexers': 'indexer',
-    'centuries': 'century',
-    'source_statii': 'source_status',
-    'chants': 'chant',
-    'sources': 'source',
-    'portfolia': 'portfolio',
-    'segments': 'segment',
-    'feasts': 'feast',
-    'notations': 'notation',
-    'genres': 'genre',
-    'provenances': 'provenance',
+const _TYPE_PLURAL_TO_SINGULAR = {  // eslint-disable-line id-length
+    sigla: 'siglum',
+    offices: 'office',
+    indexers: 'indexer',
+    centuries: 'century',
+    source_statii: 'source_status',  // eslint-disable-line camelcase
+    chants: 'chant',
+    sources: 'source',
+    portfolia: 'portfolio',
+    segments: 'segment',
+    feasts: 'feast',
+    notations: 'notation',
+    genres: 'genre',
+    provenances: 'provenance',
 };
 
 
@@ -73,7 +73,6 @@ const _TYPE_PLURAL_TO_SINGULAR = {
 const _ROOT_URL_FAILURE = 'CantusJS: Root URL request failed with code ';
 
 
-// TODO: this is such a hack...
 let _currentThis = null;
 
 
@@ -82,8 +81,8 @@ let _currentThis = null;
 
 /**  Add " and " to a string if there is a space in it, and the contents are not already quoted.
  *
- * @param (str) string - The string to quote.
- * @returns (str) The quoted string.
+ * @param {str} string - The string to quote.
+ * @returns {str} The quoted string.
  */
 function quoteIfNeeded(string) {
     if  (   (string.indexOf(' ') >= 0)
@@ -92,113 +91,107 @@ function quoteIfNeeded(string) {
                 && !(string.charAt(0) === "'" && string.charAt(string.length - 1) === "'")
                )
             )
-        )
-        {
-           string = `"${string}"`;
+        ) {
+        string = `"${string}"`;
     }
 
     return string;
-};
-
-
-function convertTypeNumber(type, to) {
-    // Convert a resource type from singular grammatical number to plural, or vice versa.
-    //
-    // Parameters:
-    // ===========
-    // - type (string) The resource type to convert.
-    // - to (string) Whether to convert the grammatical number to "singular" or "plural".
-    //
-    // Returns:
-    // ========
-    // A string with the resource type in the requested grammatical number. If the "type" is already
-    // in the requested grammatical number, it will be returned as-is. (That is, converting
-    // ``'feasts'`` to plural will safely return ``'feasts'``). If either "type" or "to" are not a
-    // string with a valid type or grammatical number, the function returns ``undefined``.
-    //
-
-    if ('singular' === to) {
-        if (_TYPE_PLURAL_TO_SINGULAR[type]) {
-            return _TYPE_PLURAL_TO_SINGULAR[type];
-        } else if (_TYPE_SINGULAR_TO_PLURAL[type]) {
-            return type;
-        }
-    } else if ('plural' === to) {
-        if (_TYPE_SINGULAR_TO_PLURAL[type]) {
-            return _TYPE_SINGULAR_TO_PLURAL[type];
-        } else if (_TYPE_PLURAL_TO_SINGULAR[type]) {
-            return type;
-        }
-    }
-
-    return undefined;
 }
 
 
-function _addRequestHeaders(xhr, args) {
-    // Given an XMLHttpRequest instance and the "args" provided to get() or search(), add any HTTP
-    // headers to the XMLHttpRequest as required by the args. All unknown members in "args" are
-    // silently ignored.
-    //
-    // NOTE that this function does not currently verify supplied header values.
-    //
-    // Params:
-    // =======
-    // - xhr (XMLHttpRequest) The request to which to add HTTP headers.
-    // - args (Object) An object that may contain one of the header fields (see below).
-    //
-    // Returns:
-    // ========
-    // The XMLHttpRequest object, with headers.
-    //
-    // Supported Headers:
-    // ==================
-    // - X-Cantus-Page (from the "page" member)
-    // - X-Cantus-Per-Page (from the "per_page" member)
-    // - X-Cantus-Sort (from the "sort" member)
-    // - X-Cantus-Fields (from the "fields" member)
+/** convertTypNumber(): convert a resource type between singular and plural grammatical number.
+ *
+ * @param {str} type - the resource type to convert
+ * @param {str} to - whether to convert the grammatical number to "singular" or "plural"
+ * @returns {str} A string with the resource type in the requested grammatical number. If the "type"
+ *     is already in the requested grammatical number, it will be returned as-is. (That is,
+ *     converting ``'feasts'`` to plural will safely return ``'feasts'``). If either "type" or "to"
+ *     are not a string with a valid type or grammatical number, the function returns ``undefined``.
+ */
+function convertTypeNumber(type, to) {
+    if ('singular' === to) {
+        if (_TYPE_PLURAL_TO_SINGULAR[type]) {
+            return _TYPE_PLURAL_TO_SINGULAR[type];
+        }
+        else if (_TYPE_SINGULAR_TO_PLURAL[type]) {
+            return type;
+        }
+    }
+    else if ('plural' === to) {
+        if (_TYPE_SINGULAR_TO_PLURAL[type]) {
+            return _TYPE_SINGULAR_TO_PLURAL[type];
+        }
+        else if (_TYPE_PLURAL_TO_SINGULAR[type]) {
+            return type;
+        }
+    }
+}
 
-    if (args['page']) {
-        xhr.setRequestHeader('X-Cantus-Page', args['page']);
+
+/** _addRequestHeaders(): Given an XMLHttpRequest instance and the "args" provided to get() or
+ * search(), add any HTTP headers to the XMLHttpRequest as required by the args. All unknown members
+ * in "args" are silently ignored.
+ *
+ * NOTE that this function does not currently verify supplied header values.
+ *
+ * @param {XMLHttpRequest} xhr - The request to which to add HTTP headers.
+ * @param {Object} args - An object that may contain one of the header fields (see below).
+ * @returns {XMLHttpRequest} The XHR object, with headers.
+ *
+ * Supported Headers:
+ * ==================
+ * - X-Cantus-Page (from the "page" member)
+ * - X-Cantus-Per-Page (from the "per_page" member)
+ * - X-Cantus-Sort (from the "sort" member)
+ * - X-Cantus-Fields (from the "fields" member)
+ */
+function _addRequestHeaders(xhr, args) {
+    if (args.page) {
+        xhr.setRequestHeader('X-Cantus-Page', args.page);
     }
-    if (args['per_page']) {
-        xhr.setRequestHeader('X-Cantus-Per-Page', args['per_page']);
+    if (args.per_page) {
+        xhr.setRequestHeader('X-Cantus-Per-Page', args.per_page);
     }
-    if (args['sort']) {
-        xhr.setRequestHeader('X-Cantus-Sort', args['sort']);
+    if (args.sort) {
+        xhr.setRequestHeader('X-Cantus-Sort', args.sort);
     }
-    if (args['fields']) {
-        xhr.setRequestHeader('X-Cantus-Fields', args['fields']);
+    if (args.fields) {
+        xhr.setRequestHeader('X-Cantus-Fields', args.fields);
     }
 
     return xhr;
-};
+}
 
+
+/** _dumbXhrThing(): Simply returns a new XMLHttpRequest.
+ *
+ * It's because I couldn't figure out how to mock the XMLHttpRequest properly, and I didn't think
+ * it was worth the effort.
+ *
+ * @returns {XMLHttpRequest} A new XHR instance.
+ */
 function _dumbXhrThing() {
-    // Simply returns a new XMLHttpRequest. It's because I couldn't figure out how to mock the
-    // XMLHttpRequest properly, and I didn't think it was worth the effort.
     return new XMLHttpRequest();
-};
+}
 
+
+/** _submitAjax(): Submits the AJAX requests.
+ *
+ * It's separated here so the actual functions used for the request is abstracted, and to allow
+ * easier mocking in unit tests.
+ *
+ * @param {str} httpMethod - The HTTP method for the request.
+ * @param {str} url - The URL for the request.
+ * @param {Object} data - An object with two members:
+ *     - args (Object) the "args" submitted to search() or get().
+ *     - body (str) The request body to submit; may be null.
+ * @param {func} loadListener - A function to call when the request finishes.
+ * @param {func} errorListener - A function to call if the request errors.
+ * @param {func} abortListener - A function to call if the reqeust aborts.
+ *
+ * @returns {undefined} Nothing. However, one of the "listener" functions will be called.
+ */
 function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortListener) {
-    // This function submits the AJAX requests. It's separated here so the actual functions used
-    // for the request is abstracted, and to allow easier mocking in unit tests.
-    //
-    // Params:
-    // =======
-    // - httpMethod (str) The HTTP method for the request.
-    // - url (str) The URL for the request.
-    // - data (Object) An object with two members:
-    //     - args (Object) the "args" submitted to search() or get().
-    //     - body (str) The request body to submit; may be null.
-    // - loadListener (func) A function to call when the request finishes.
-    // - errorListener (func) A function to call if the request errors.
-    // - abortListener (func) A function to call if the reqeust aborts.
-    //
-    // Returns:
-    // ========
-    // Nothing. However, one of the "listener" functions will be called.
-
     let xhr = cantusModule._dumbXhrThing();
     xhr.open(httpMethod, url);  // NOTE: you must call open() before setting request headers
     xhr = cantusModule._addRequestHeaders(xhr, data.args);
@@ -212,47 +205,43 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
     }
     if (null !== data.body) {
         xhr.send(data.body);
-    } else {
+    }
+    else {
         xhr.send();
     }
-};
+}
 
 
+/** HateoasError. Raise this error when there's a HATEOAS-related problem, like no data can be
+ * loaded from the root URL, or you're asked to find a resource with a type the server doesn't know.
+ */
 function HateoasError(message) {
-    // Raise this error when there's a HATEOAS-related problem, like no data can be loaded from the
-    // root URL, or you're asked to find a resource with a type the server doesn't know.
     this.name = 'HateoasError';
     this.message = message || 'HATEOAS-related error';
     this.stack = (new Error()).stack;
-};
+}
 HateoasError.prototype = Object.create(Error.prototype);
 HateoasError.prototype.constructor = HateoasError;
 
 
+/** _findUrlFromType(): Given a resource type and HATEOAS directory, find the server's URL for that
+ * type. If the URL can't be found, and the third parameter ("defaultAll") is omitted or evaluates
+ * to true, the URL for "all" types will be returned *unless* the "id" argument is provided.
+ *
+ * @param {str} type - The resource type to search for; may be singular or plural.
+ * @param {Object} hateoas - Mapping from resource type to URL; provide the root HATEOAS object that
+ *     contains both "browse" and "view" resources.
+ * @param {bool} defaultAll - Return the "all" URL if "type" cannot be found; defaults to true.
+ * @param {str} id - Optional "id" of a single resource to request.
+ *
+ * @throws {HateoasError} When the resource type cannot be found, and
+ *     - "all" cannot be found, or
+ *     - the "defaultAll" argument evaluates to false, or
+ *     - the "id" argument is provided
+ *
+ * @returns {str} The URL from the "hateoas" dict, with "id" substituted appropriately.
+ */
 function _findUrlFromType(type, hateoas, defaultAll, id) {
-    // Given a resource type and HATEOAS directory, find the server's URL for that type. If the URL
-    // can't be found, and the third parameter ("defaultAll") is omitted or evaluates to true, the
-    // URL for "all" types will be returned *unless* the "id" argument is provided.
-    //
-    // Parameters:
-    // ===========
-    // - type (str) The resource type to search for; may be singular or plural.
-    // - hateaos (object) Mapping from resource type to URL; provide the root HATEOAS object that
-    //                    contains both "browse" and "view" resources.
-    // - defaultAll (bool) Whether to return the "all" URL if "type" cannot be found; defaults to true.
-    // - id (str or int) Optional "id" of a single resource to request.
-    //
-    // Raises:
-    // =======
-    // - HateoasError: when the resource type cannot be found, and
-    //                    - all" cannot be found, or
-    //                    - the "defaultAll" argument evaluates to false, or
-    //                    - the "id" argument is provided
-    //
-    // Returns:
-    // ========
-    // The URL from the "hateoas" dict, with "id" substituted appropriately.
-
     // set up
     if (undefined === defaultAll) {
         defaultAll = true;
@@ -262,73 +251,72 @@ function _findUrlFromType(type, hateoas, defaultAll, id) {
 
     // fetch the URL
     if (id) {
-        requestUrl = hateoas['view'][type];
+        requestUrl = hateoas.view[type];
         // if we got a URL, fill in the "id" part
         if (undefined !== requestUrl) {
             requestUrl = requestUrl.replace('id?', id);
         }
-    } else {
-        requestUrl = hateoas['browse'][type];
+    }
+    else {
+        requestUrl = hateoas.browse[type];
         // if we didn't get a URL, maybe we can use the "all" type?
         if (undefined === requestUrl && defaultAll) {
-            requestUrl = hateoas['browse']['all'];
+            requestUrl = hateoas.browse.all;
         }
     }
 
     // return the URL if we have one, or else panic
-    if (undefined !== requestUrl) {
-        return requestUrl;
-    } else {
-        throw new HateoasError('Could not find a URL for "' + type + '" resources.');
+    if (undefined === requestUrl) {
+        throw new HateoasError(`Could not find a URL for "${type}" resources.`);
     }
-};
+    return requestUrl;
+}
 
 
+/** QueryError: Raise this error when there's an error related to parsing a search query, and you
+ * want to tell the user about it.
+ */
 function QueryError(message) {
-    // Raise this error when there's an error related to parsing a search query, and you want to
-    // tell the user about it.
     this.name = 'QueryError';
     this.message = message || 'query-related error';
     this.stack = (new Error()).stack;
-};
+}
 QueryError.prototype = Object.create(Error.prototype);
 QueryError.prototype.constructor = QueryError;
 
 
+/** _prepareSearchRequestBody(): Given the "query" submitted by the user, validate the query and
+ * prepare the request body as it should be submitted to the Cantus API server.
+ *
+ * @param {Object} query - the "args" submitted to search()
+ * @throws {QueryError} When the "query" contains invalid fields, or is invalid for another reason.
+ * @returns The request body, ready for submission to the Cantus API server.
+ */
 function _prepareSearchRequestBody(query) {
-    // Given the "query" submitted by the user, validate the query and prepare the request body as
-    // it should be submitted to the Cantus API server.
-    //
-    // Parameters:
-    // - query (object) the "args" submitted to search()
-    //
-    // Raises:
-    // - QueryError: when the "query" contains invalid fields, or is invalid for another reason.
-    //
-    // Returns:
-    // The request body, ready for submission to the Cantus API server.
-
     // These aren't search fields, but they may appear in the "query" argument because they're used
     // to set request headers. We'll just ignore them.
-    let headerFields = ['page', 'per_page', 'fields', 'sort'];
+    const headerFields = ['page', 'per_page', 'fields', 'sort'];
 
     let queryStr = '';
-    for (let field in query) {
+    for (const field in query) {
         // NB: if we were using proper JavaScript Objects, that inherited members from a prototype,
         //     we would need an additional check with hasOwnProperty()
         if (VALID_FIELDS.indexOf(field) >= 0) {
             if ('any' === field) {
-                queryStr += ' ' + query['any'];
-            } else if ('type' !== field) {
+                queryStr = `${queryStr} ${query.any}`;
+            }
+            else if ('type' !== field) {
                 // ignore "type"
                 if (query[field] === '') {
-                    queryStr += ' ' + field + ':*';
-                } else {
-                    queryStr += ' ' + field + ':' + quoteIfNeeded(query[field]);
+                    queryStr = `${queryStr} ${field}:*`;
+                }
+                else {
+                    queryStr = `${queryStr} ${field}:${quoteIfNeeded(query[field])}`;
                 }
             }
-        } else if (headerFields.indexOf(field) < 0) {
-            throw new QueryError('Invalid field in query: "' + field + '"');
+        }
+        else if (headerFields.indexOf(field) < 0) {
+            throw new QueryError(`Invalid field in query: "${field}"`);
         }
     }
 
@@ -338,98 +326,92 @@ function _prepareSearchRequestBody(query) {
     }
 
     return JSON.stringify({query: queryStr});
-};
+}
 
 
+/* _loadResponse(): Given the "load" event from an XMLHttpRequest, and the resolve and reject
+ * functions of a Promise, try to parse the response body into a JavaScript object and submit it to
+ * the resolve function. If that fails, or if the XMLHttpReqeust response code was not 200, use the
+ * reject function.
+ *
+ * @param {Event} event - The XMLHttpRequest "load" event.
+ * @param {func} resolve - The "resolve" function for a Promise.
+ * @param {func} reject - The "reject" function for a Promise.
+ *
+ * NOTE: for a description of the arguments given to the resolve and reject functions, refer to
+ * the get() function documentation.
+ */
 function _loadResponse(event, resolve, reject) {
-    // Given the "load" event from an XMLHttpRequest, and the resolve and reject functions of a
-    // Promise, try to parse the response body into a JavaScript object and submit it to the resolve
-    // function. If that fails, or if the XMLHttpReqeust response code was not 200, use the reject
-    // function.
-    //
-    // Parameters
-    // ==========
-    // - event (event) The XMLHttpRequest "load" event.
-    // - resolve (function) The "resolve" function for a Promise.
-    // - reject (function) The "reject" function for a Promise.
-    //
-    // NOTE: for a description of the arguments given to the resolve and reject functions, refer to
-    // the get() function documentation.
-
-    let xhr = event.target;
-    if (200 != xhr.status) {
-        let errObj = {code: xhr.status, reason: xhr.statusText,
-                      response: xhr.status + ': ' + xhr.statusText};
-        reject(errObj);
-    } else {
+    const xhr = event.target;
+    if (200 !== xhr.status) {
+        reject({code: xhr.status, reason: xhr.statusText, response: `${xhr.status}: ${xhr.statusText}`});
+    }
+    else {
         try {
             // prepare the response body
-            let data = JSON.parse(xhr.response);
-            if (undefined === data.sort_order) {
-                let sort_order = [];
-                for (let item in data) {
+            const data = JSON.parse(xhr.response);
+            if (undefined === data.sort_order) {  // eslint-disable-line camelcase
+                const sort_order = [];  // eslint-disable-line camelcase
+                for (const item in data) {
                     if ('resources' !== item) {
-                        sort_order.push(item);
+                        sort_order.push(item);  // eslint-disable-line camelcase
                     }
                 }
-                data['sort_order'] = sort_order;
+                data.sort_order = sort_order;  // eslint-disable-line camelcase
             }
 
             // prepare the response headers
-            let headers = {
-                'version': xhr.getResponseHeader('X-Cantus-Version'),
-                'include_resources': xhr.getResponseHeader('X-Cantus-Include-Resources'),
-                'fields': xhr.getResponseHeader('X-Cantus-Fields'),
-                'extra_fields': xhr.getResponseHeader('X-Cantus-Extra-Fields'),
-                'total_results': xhr.getResponseHeader('X-Cantus-Total-Results'),
-                'page': xhr.getResponseHeader('X-Cantus-Page'),
-                'per_page': xhr.getResponseHeader('X-Cantus-Per-Page'),
-                'sort': xhr.getResponseHeader('X-Cantus-Sort'),
+            data.headers = {
+                version: xhr.getResponseHeader('X-Cantus-Version'),
+                include_resources: xhr.getResponseHeader('X-Cantus-Include-Resources'),  // eslint-disable-line camelcase
+                fields: xhr.getResponseHeader('X-Cantus-Fields'),
+                extra_fields: xhr.getResponseHeader('X-Cantus-Extra-Fields'),  // eslint-disable-line camelcase
+                total_results: xhr.getResponseHeader('X-Cantus-Total-Results'),  // eslint-disable-line camelcase
+                page: xhr.getResponseHeader('X-Cantus-Page'),
+                per_page: xhr.getResponseHeader('X-Cantus-Per-Page'),  // eslint-disable-line camelcase
+                sort: xhr.getResponseHeader('X-Cantus-Sort'),
             };
-            data['headers'] = headers;
 
             resolve(data);
-        } catch (possibleError) {
+        }
+        catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
-                let errObj = {code: 0, reason: 'internal error',
-                              response: 'CantusJS: SyntaxError while parsing response.'};
-                reject(errObj);
-            } else {
-                let errObj = {code: 0, reason: 'internal error',
-                              response: 'CantusJS: ' + possibleError.name + ' while parsing response.'};
-                reject(errObj);
+                reject({code: 0, reason: 'internal error',
+                    response: 'CantusJS: SyntaxError while parsing response.'});
+            }
+            else {
+                reject({code: 0, reason: 'internal error',
+                    response: `CantusJS: ${possibleError.name} while parsing response.`});
                 throw possibleError;
             }
         }
     }
-};
+}
 
+
+/** _abortRequest(): Call this function when the XMLHttpRequest was aborted.
+ *
+ * @param {Event} event - The DOM event given to the "cancel" event listener.
+ * @param {func} reject - The "reject" function of a Promise to call with the bad news.
+ */
 function _abortRequest(event, reject) {
-    // Call this function when the XMLHttpRequest was aborted.
-    //
-    // Params
-    // ======
-    // - event (event) The DOM event given to the "cancel" event listener.
-    // - reject (function) The "reject" function of a Promise to call with the bad news.
-
     reject({code: 0, reason: 'Request aborted', response: 'The XMLHttpRequest was aborted.'});
-};
+}
 
+
+/** _errorRequest(): Call this function when there's an error during the XMLHttpRequest.
+ *
+ * @param {Event} event - The DOM event given to the "error" event listener.
+ * @param {func} reject - The "reject" function of a Promise to call with the bad news.
+ */
 function _errorRequest(event, reject) {
-    // Call this function when there's an error during the XMLHttpRequest.
-    //
-    // Params
-    // ======
-    // - event (event) The DOM event given to the "error" event listener.
-    // - reject (function) The "reject" function of a Promise to call with the bad news.
-
     reject({code: 0, reason: 'Request errored', response: 'Error during the XMLHttpRequest.'});
-};
+}
 
 
 // The "Cantus" Object
 // ===================
-let Cantus = function (serverUrl) {
+const Cantus = function Cantus(serverUrl) {
     _currentThis = this;
     this.setServerUrl(serverUrl);
 };
@@ -455,86 +437,85 @@ Cantus.prototype._searchReject = null;
 
 // Cantus object's public methods
 // ==============================
-Cantus.prototype.setServerUrl = function(toThis) {
+Cantus.prototype.setServerUrl = function setServerUrl(toThis) {
     this.serverUrl = toThis;
     this._getHateoas();
 };
 
-Cantus.prototype.get = function(args) {
-    // NOTE: keep this in sync with the README
-    // Submit a GET request to the Cantus server.
-    //
-    // Parameters
-    // ==========
-    // - args (Object) Arguments to use to create the request. All are optional. Possibilities are:
-    //     - id: to fetch a resource with a known ID
-    //     - type: to fetch a resource of a particular type
-    //     - page: the page number of results to fetch
-    //     - per_page: the number of results to return on every "page"
-    //     - fields: comma-separated list of fields to include in the results
-    //     - sort: value for the "X-Cantus-Sort" HTTP header
-    //
-    // Returns
-    // =======
-    // This function returns a Promise. Refer to the description above to know what this means.
-    //
-    // - then(): The Promise returned by this function is resolved to the then() function when the
-    //     server returns a "200" response code, meaning that the requested resource(s) was/were
-    //     found and returned without issue. This function is given a single argument, which is the
-    //     response body from the Cantus server, which is fully defined in the Cantus API. It looks
-    //     approximately like this:
-    //
-    //         {
-    //             '123': {'type': 'chant', 'id': '123', 'incipit': 'Et quoniam...'},
-    //             '666': {'type': 'chant', 'id': '666', 'incipit': 'Yikes!'},
-    //             'resources': {'123': {'self': 'http://cantus.org/123'},
-    //                           '666': {'self': 'http://cantus.org/666'}},
-    //             'sort_order': ['123', '666']
-    //         }
-    //
-    // - catch(): The Promise returned by this function is resolved to the catch() function when the
-    //     server returns any response code other than 200 *or* when the request fails or any other
-    //     reason (the user cancelled it, the computer is disconnected from the internet, etc.).
-    //     This function is given a single argument: a JavaScript Object with three members (code,
-    //     reason, and response). For example:
-    //
-    //         {
-    //             'code': 404,
-    //             'reason': 'Not Found',
-    //             'response': '404: Not Found'
-    //         }
-    //
-    //     This argument means the request was completed, and the server responded that there are no
-    //     resources that satisfy the request (e.g., the "id" was wrong, the search request was too
-    //     specific, or similar).
-    //
-    //     If the request fails in the browser (meaning the "error" or "abort" event happened), the
-    //     "code" member is set to 0 (zero) which allows the following:
-    //
-    //         .catch(function(response) {
-    //             if (response.code > 0) {
-    //                 // we know the server responded with an error
-    //             } else {
-    //                 // we know the server never got the request
-    //             }
-    //         }
-    //
-    //     Finally, it should be noted that, although the "response" member is currently redundant
-    //     because it contains the same information as the code and reason, this may not always be
-    //     the case. Future versions of Abbot may return more informative responses to an error,
-    //     describing in more detail how and why the request failed. When that happens, the
-    //     "response" member will become significantly more helpful!
-    // NOTE: keep this in sync with the README
 
+/** get(): Submit a GET request to the Cantus server.
+
+Parameters
+==========
+- args (Object) Arguments to use to create the request. All are optional. Possibilities are:
+    - id: to fetch a resource with a known ID
+    - type: to fetch a resource of a particular type
+    - page: the page number of results to fetch
+    - per_page: the number of results to return on every "page"
+    - fields: comma-separated list of fields to include in the results
+    - sort: value for the "X-Cantus-Sort" HTTP header
+
+Returns
+=======
+This function returns a Promise. Refer to the description above to know what this means.
+
+- then(): The Promise returned by this function is resolved to the then() function when the
+    server returns a "200" response code, meaning that the requested resource(s) was/were
+    found and returned without issue. This function is given a single argument, which is the
+    response body from the Cantus server, which is fully defined in the Cantus API. It looks
+    approximately like this:
+
+        {
+            '123': {'type': 'chant', 'id': '123', 'incipit': 'Et quoniam...'},
+            '666': {'type': 'chant', 'id': '666', 'incipit': 'Yikes!'},
+            'resources': {'123': {'self': 'http://cantus.org/123'},
+                          '666': {'self': 'http://cantus.org/666'}},
+            'sort_order': ['123', '666']
+        }
+
+- catch(): The Promise returned by this function is resolved to the catch() function when the
+    server returns any response code other than 200 *or* when the request fails or any other
+    reason (the user cancelled it, the computer is disconnected from the internet, etc.).
+    This function is given a single argument: a JavaScript Object with three members (code,
+    reason, and response). For example:
+
+        {
+            'code': 404,
+            'reason': 'Not Found',
+            'response': '404: Not Found'
+        }
+
+    This argument means the request was completed, and the server responded that there are no
+    resources that satisfy the request (e.g., the "id" was wrong, the search request was too
+    specific, or similar).
+
+    If the request fails in the browser (meaning the "error" or "abort" event happened), the
+    "code" member is set to 0 (zero) which allows the following:
+
+        .catch(function(response) {
+            if (response.code > 0) {
+                // we know the server responded with an error
+            } else {
+                // we know the server never got the request
+            }
+        }
+
+    Finally, it should be noted that, although the "response" member is currently redundant
+    because it contains the same information as the code and reason, this may not always be
+    the case. Future versions of Abbot may return more informative responses to an error,
+    describing in more detail how and why the request failed. When that happens, the
+    "response" member will become significantly more helpful!
+ */
+Cantus.prototype.get = function get(args) {
     // what we'll return
-    let prom = new Promise(function(resolve, reject) {
+    const prom = new Promise(function(resolve, reject) {
         this._getResolve = resolve;
         this._getReject = reject;
     }.bind(this));
 
     // the actual request stuff; may be run *after* the function returns!
     this.ready.then(function() {
-        let requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true, args['id']);
+        const requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true, args.id);
         cantusModule._submitAjax('GET', requestUrl, {args: args, body: null}, this._loadGet,
                                  this._errorGet, this._abortGet);
     }.bind(this));
@@ -543,27 +524,26 @@ Cantus.prototype.get = function(args) {
     return prom;
 };
 
-Cantus.prototype.search = function(args) {
-    // NOTE: keep this in sync with the README
-    // Submit a SEARCH request to the Cantus server.
-    //
-    // Parameters:
-    // ===========
-    // - args (Object) Arguments to use to create the request. All are optional. This includes all
-    //     the fields listed for get() function *except* "id". If you know a resource ID, use get().
-    //     In addition, this function accepts any field name associated with any resource type
-    //     defined in the Cantus API. This function does not check that the fields requested are in
-    //     fact valid for the resource type requested in the "type" member (that is, this function
-    //     will not stop you from searching for the "first_name" of a "chant" for example).
-    //
-    // Returns:
-    // ========
-    // The "return behaviour" of this function is identical to get(). Please refer to that
-    // function's documentation.
-    // NOTE: keep this in sync with the README
 
-    // what we'll return
-    let prom = new Promise(function(resolve, reject) {
+/** search(): Submit a SEARCH request to the Cantus server.
+
+Parameters:
+===========
+- args (Object) Arguments to use to create the request. All are optional. This includes all
+    the fields listed for get() function *except* "id". If you know a resource ID, use get().
+    In addition, this function accepts any field name associated with any resource type
+    defined in the Cantus API. This function does not check that the fields requested are in
+    fact valid for the resource type requested in the "type" member (that is, this function
+    will not stop you from searching for the "first_name" of a "chant" for example).
+
+Returns:
+========
+The "return behaviour" of this function is identical to get(). Please refer to that
+function's documentation.
+what we'll return
+ */
+Cantus.prototype.search = function search(args) {
+    const prom = new Promise(function(resolve, reject) {
         this._searchResolve = resolve;
         this._searchReject = reject;
     }.bind(this));
@@ -573,15 +553,17 @@ Cantus.prototype.search = function(args) {
         let requestBody;
         try {
             requestBody = cantusModule._prepareSearchRequestBody(args);
-        } catch (exc) {
+        }
+        catch (exc) {
             if (exc instanceof QueryError) {
                 this._searchReject(exc.message);
-            } else {
+            }
+            else {
                 this._searchReject('Unrecoverable error while parsing query');
             }
             return prom;
         }
-        let requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
+        const requestUrl = cantusModule._findUrlFromType(args.type, this._hateoas, true);
         cantusModule._submitAjax('SEARCH', requestUrl, {args: args, body: requestBody},
                                  this._loadSearch, this._errorSearch, this._abortSearch);
     }.bind(this));
@@ -593,7 +575,7 @@ Cantus.prototype.search = function(args) {
 
 // Cantus object's private methods
 // ===============================
-Cantus.prototype._getHateoas = function() {
+Cantus.prototype._getHateoas = function _getHateoas() {
     // Load the root directory's HATEOAS information, required for other URLs.
     this._hateoasPromise = new Promise(function(resolve, reject) {
         this._hateoasResolve = resolve;
@@ -603,19 +585,22 @@ Cantus.prototype._getHateoas = function() {
     cantusModule._submitAjax('GET', this.serverUrl, {args: {}, body: null}, this._loadHateoas);
 };
 
-Cantus.prototype._loadHateoas = function(event) {
-    let xhr = event.target;
-    if (200 != xhr.status) {
+Cantus.prototype._loadHateoas = function _loadHateoas(event) {
+    const xhr = event.target;
+    if (200 !== xhr.status) {
         _currentThis._hateoasReject(_ROOT_URL_FAILURE + xhr.status);
-    } else {
+    }
+    else {
         try {
             _currentThis._hateoas = JSON.parse(xhr.response).resources;
             _currentThis._hateoasResolve(); // TODO: move the "_hateoas-setting" bit to _hateoasResolve so that this can use _loadResponse()
-        } catch (possibleError) {
+        }
+        catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
-                let errMsg = 'CantusJS: SyntaxError while parsing response from the root URL.';
+                const errMsg = 'CantusJS: SyntaxError while parsing response from the root URL.';
                 _currentThis._hateoasReject(errMsg);
-            } else {
+            }
+            else {
                 _currentThis._hateoasReject(possibleError.name);
                 throw possibleError;
             }
@@ -623,27 +608,27 @@ Cantus.prototype._loadHateoas = function(event) {
     }
 };
 
-Cantus.prototype._loadGet = function(event) {
+Cantus.prototype._loadGet = function _loadGet(event) {
     cantusModule._loadResponse(event, _currentThis._getResolve, _currentThis._getReject);
 };
 
-Cantus.prototype._abortGet = function(event) {
+Cantus.prototype._abortGet = function _abortGet(event) {
     cantusModule._abortRequest(event, _currentThis._getReject);
 };
 
-Cantus.prototype._errorGet = function(event) {
+Cantus.prototype._errorGet = function _errorGet(event) {
     cantusModule._errorRequest(event, _currentThis._getReject);
 };
 
-Cantus.prototype._loadSearch = function(event) {
+Cantus.prototype._loadSearch = function _loadSearch(event) {
     cantusModule._loadResponse(event, _currentThis._searchResolve, _currentThis._searchReject);
 };
 
-Cantus.prototype._abortSearch = function(event) {
+Cantus.prototype._abortSearch = function _abortSearch(event) {
     cantusModule._abortRequest(event, _currentThis._searchReject);
 };
 
-Cantus.prototype._errorSearch = function(event) {
+Cantus.prototype._errorSearch = function _errorSearch(event) {
     cantusModule._errorRequest(event, _currentThis._searchReject);
 };
 
@@ -652,7 +637,7 @@ const cantusModule = {
     Cantus: Cantus, _submitAjax: _submitAjax, _findUrlFromType: _findUrlFromType,
     _prepareSearchRequestBody: _prepareSearchRequestBody, _HateoasError: HateoasError,
     _QueryError: QueryError, _loadResponse: _loadResponse, _abortRequest: _abortRequest,
-    _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders, _dumbXhrThing:_dumbXhrThing,
+    _errorRequest: _errorRequest, _addRequestHeaders: _addRequestHeaders, _dumbXhrThing: _dumbXhrThing,
     convertTypeNumber: convertTypeNumber, VALID_FIELDS: VALID_FIELDS, quoteIfNeeded: quoteIfNeeded,
 };
 
