@@ -355,7 +355,11 @@ function _prepareSearchRequestBody(query) {
                 queryStr += ' ' + query['any'];
             } else if ('type' !== field) {
                 // ignore "type"
-                queryStr += ' ' + field + ':' + quoteIfNeeded(query[field]);
+                if (query[field] === '') {
+                    queryStr += ' ' + field + ':*';
+                } else {
+                    queryStr += ' ' + field + ':' + quoteIfNeeded(query[field]);
+                }
             }
         } else if (!headerFields.includes(field)) {
             throw new QueryError('Invalid field in query: "' + field + '"');

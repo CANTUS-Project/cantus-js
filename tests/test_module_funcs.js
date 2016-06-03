@@ -243,6 +243,16 @@ describe('_prepareSearchRequestBody()', function() {
             expect(exc.name).toBe('QueryError');
         }
     });
+
+    it('converts zero-length field to asterisk', function() {
+        // NOTE: regression test for https://github.com/CANTUS-Project/cantus-js/issues/16
+        let query = {'name': 'one', 'date': ''};
+        let expected = '{"query":"name:one date:*"}';
+
+        let actual = CANTUS_MODULE._prepareSearchRequestBody(query);
+
+        expect(actual).toBe(expected);
+    });
 });
 
 describe('_loadResponse', function() {
