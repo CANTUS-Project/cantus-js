@@ -81,8 +81,8 @@ let _currentThis = null;
 
 /**  Add " and " to a string if there is a space in it, and the contents are not already quoted.
  *
- * @param {str} string - The string to quote.
- * @returns {str} The quoted string.
+ * @param {string} string - The string to quote.
+ * @returns {string} The quoted string.
  */
 function quoteIfNeeded(string) {
     if  (   (string.indexOf(' ') >= 0)
@@ -99,11 +99,11 @@ function quoteIfNeeded(string) {
 }
 
 
-/** convertTypNumber(): convert a resource type between singular and plural grammatical number.
+/** Convert a resource type between singular and plural grammatical number.
  *
- * @param {str} type - the resource type to convert
- * @param {str} to - whether to convert the grammatical number to "singular" or "plural"
- * @returns {str} A string with the resource type in the requested grammatical number. If the "type"
+ * @param {string} type - the resource type to convert
+ * @param {string} to - whether to convert the grammatical number to "singular" or "plural"
+ * @returns {string} A string with the resource type in the requested grammatical number. If the "type"
  *     is already in the requested grammatical number, it will be returned as-is. (That is,
  *     converting ``'feasts'`` to plural will safely return ``'feasts'``). If either "type" or "to"
  *     are not a string with a valid type or grammatical number, the function returns ``undefined``.
@@ -128,7 +128,7 @@ function convertTypeNumber(type, to) {
 }
 
 
-/** _addRequestHeaders(): Given an XMLHttpRequest instance and the "args" provided to get() or
+/** Given an XMLHttpRequest instance and the "args" provided to get() or
  * search(), add any HTTP headers to the XMLHttpRequest as required by the args. All unknown members
  * in "args" are silently ignored.
  *
@@ -163,7 +163,7 @@ function _addRequestHeaders(xhr, args) {
 }
 
 
-/** _dumbXhrThing(): Simply returns a new XMLHttpRequest.
+/** Simply returns a new XMLHttpRequest.
  *
  * It's because I couldn't figure out how to mock the XMLHttpRequest properly, and I didn't think
  * it was worth the effort.
@@ -175,13 +175,13 @@ function _dumbXhrThing() {
 }
 
 
-/** _submitAjax(): Submits the AJAX requests.
+/** Submits the AJAX requests.
  *
  * It's separated here so the actual functions used for the request is abstracted, and to allow
  * easier mocking in unit tests.
  *
- * @param {str} httpMethod - The HTTP method for the request.
- * @param {str} url - The URL for the request.
+ * @param {string} httpMethod - The HTTP method for the request.
+ * @param {string} url - The URL for the request.
  * @param {Object} data - An object with two members:
  *     - args (Object) the "args" submitted to search() or get().
  *     - body (str) The request body to submit; may be null.
@@ -212,7 +212,7 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
 }
 
 
-/** HateoasError. Raise this error when there's a HATEOAS-related problem, like no data can be
+/** Raise this error when there's a HATEOAS-related problem, like no data can be
  * loaded from the root URL, or you're asked to find a resource with a type the server doesn't know.
  */
 function HateoasError(message) {
@@ -224,22 +224,22 @@ HateoasError.prototype = Object.create(Error.prototype);
 HateoasError.prototype.constructor = HateoasError;
 
 
-/** _findUrlFromType(): Given a resource type and HATEOAS directory, find the server's URL for that
+/** Given a resource type and HATEOAS directory, find the server's URL for that
  * type. If the URL can't be found, and the third parameter ("defaultAll") is omitted or evaluates
  * to true, the URL for "all" types will be returned *unless* the "id" argument is provided.
  *
- * @param {str} type - The resource type to search for; may be singular or plural.
+ * @param {string} type - The resource type to search for; may be singular or plural.
  * @param {Object} hateoas - Mapping from resource type to URL; provide the root HATEOAS object that
  *     contains both "browse" and "view" resources.
  * @param {bool} defaultAll - Return the "all" URL if "type" cannot be found; defaults to true.
- * @param {str} id - Optional "id" of a single resource to request.
+ * @param {string} id - Optional "id" of a single resource to request.
  *
  * @throws {HateoasError} When the resource type cannot be found, and
  *     - "all" cannot be found, or
  *     - the "defaultAll" argument evaluates to false, or
  *     - the "id" argument is provided
  *
- * @returns {str} The URL from the "hateoas" dict, with "id" substituted appropriately.
+ * @returns {string} The URL from the "hateoas" dict, with "id" substituted appropriately.
  */
 function _findUrlFromType(type, hateoas, defaultAll, id) {
     // set up
@@ -273,7 +273,7 @@ function _findUrlFromType(type, hateoas, defaultAll, id) {
 }
 
 
-/** QueryError: Raise this error when there's an error related to parsing a search query, and you
+/** Raise this error when there's an error related to parsing a search query, and you
  * want to tell the user about it.
  */
 function QueryError(message) {
@@ -285,7 +285,7 @@ QueryError.prototype = Object.create(Error.prototype);
 QueryError.prototype.constructor = QueryError;
 
 
-/** _prepareSearchRequestBody(): Given the "query" submitted by the user, validate the query and
+/** Given the "query" submitted by the user, validate the query and
  * prepare the request body as it should be submitted to the Cantus API server.
  *
  * @param {Object} query - the "args" submitted to search()
@@ -389,7 +389,7 @@ function _loadResponse(event, resolve, reject) {
 }
 
 
-/** _abortRequest(): Call this function when the XMLHttpRequest was aborted.
+/** Call this function when the XMLHttpRequest was aborted.
  *
  * @param {Event} event - The DOM event given to the "cancel" event listener.
  * @param {func} reject - The "reject" function of a Promise to call with the bad news.
@@ -399,7 +399,7 @@ function _abortRequest(event, reject) {
 }
 
 
-/** _errorRequest(): Call this function when there's an error during the XMLHttpRequest.
+/** Call this function when there's an error during the XMLHttpRequest.
  *
  * @param {Event} event - The DOM event given to the "error" event listener.
  * @param {func} reject - The "reject" function of a Promise to call with the bad news.
@@ -443,23 +443,20 @@ Cantus.prototype.setServerUrl = function setServerUrl(toThis) {
 };
 
 
-/** get(): Submit a GET request to the Cantus server.
-
-Parameters
-==========
-- args (Object) Arguments to use to create the request. All are optional. Possibilities are:
-    - id: to fetch a resource with a known ID
-    - type: to fetch a resource of a particular type
-    - page: the page number of results to fetch
-    - per_page: the number of results to return on every "page"
-    - fields: comma-separated list of fields to include in the results
-    - sort: value for the "X-Cantus-Sort" HTTP header
-
-Returns
-=======
-This function returns a Promise. Refer to the description above to know what this means.
-
-- then(): The Promise returned by this function is resolved to the then() function when the
+/** Submit a GET request to the Cantus server.
+ *
+ * @param {Object} args - Arguments to use in the request. All are optional, given below:
+ * @param {string} args.id - to fetch a resource with a known ID
+ * @param {string} args.type - to fetch a resource of a particular type
+ * @param {string} args.page - the page number of results to fetch
+ * @param {string} args.per_page - the number of results to return on every "page"
+ * @param {string} args.fields - comma-separated list of fields to include in the results
+ * @param {string} args.sort - value for the "X-Cantus-Sort" HTTP header
+ *
+ * @returns {Promise} This function returns a Promise. Refer to the description above to know what
+ *     this means, and the description below to know how it works with this function.
+ *
+ * - then(): The Promise returned by this function is resolved to the then() function when the
     server returns a "200" response code, meaning that the requested resource(s) was/were
     found and returned without issue. This function is given a single argument, which is the
     response body from the Cantus server, which is fully defined in the Cantus API. It looks
@@ -473,7 +470,7 @@ This function returns a Promise. Refer to the description above to know what thi
             'sort_order': ['123', '666']
         }
 
-- catch(): The Promise returned by this function is resolved to the catch() function when the
+ * - catch(): The Promise returned by this function is resolved to the catch() function when the
     server returns any response code other than 200 *or* when the request fails or any other
     reason (the user cancelled it, the computer is disconnected from the internet, etc.).
     This function is given a single argument: a JavaScript Object with three members (code,
@@ -525,22 +522,15 @@ Cantus.prototype.get = function get(args) {
 };
 
 
-/** search(): Submit a SEARCH request to the Cantus server.
-
-Parameters:
-===========
-- args (Object) Arguments to use to create the request. All are optional. This includes all
-    the fields listed for get() function *except* "id". If you know a resource ID, use get().
-    In addition, this function accepts any field name associated with any resource type
-    defined in the Cantus API. This function does not check that the fields requested are in
-    fact valid for the resource type requested in the "type" member (that is, this function
-    will not stop you from searching for the "first_name" of a "chant" for example).
-
-Returns:
-========
-The "return behaviour" of this function is identical to get(). Please refer to that
-function's documentation.
-what we'll return
+/** Submit a SEARCH request to the Cantus server.
+ *
+ * @param {Object} args - Arguments to use to create the request. All are optional. This includes
+ *     all the fields listed for get() *except* "id". If you know a resource ID, use get().
+ *     In addition, this function accepts any field name associated with any resource type defined
+ *     in the Cantus API. This function does not check that the fields requested are in fact valid
+ *     for the resource type requested in the "type" member (that is, this function will not stop
+ *     you from searching for the "first_name" of a "chant" for example).
+ * @returns {Promise} The same as get(). Please refer to that function's documentation.
  */
 Cantus.prototype.search = function search(args) {
     const prom = new Promise(function(resolve, reject) {
