@@ -279,7 +279,7 @@ describe('_loadResponse', function() {
         let expectedResponse = {'a': 'b', 'c': 'd', 'sort_order': 'ef', 'resources': 'http'};
         let expectedHeaders = {'version': '1', 'include_resources': '2', 'fields': '3',
             'extra_fields': '4', 'no_xref': '5', 'total_results': '6', 'page': null, 'per_page': null,
-            'sort': null, 'search_help': null
+            'sort': null,
         };
         expectedResponse['headers'] = expectedHeaders;
 
@@ -295,9 +295,7 @@ describe('_loadResponse', function() {
         // mock for the XMLHttpRequest
         let responseStr = '{"a":"b","resources":"http"}';
         let getResponseHeader = function(header) {
-            let headers = {'X-Cantus-Page': 'a', 'X-Cantus-Per-Page': 'b', 'X-Cantus-Sort': 'c',
-                'X-Cantus-Search-Help': 'd',
-            };
+            let headers = {'X-Cantus-Page': 'a', 'X-Cantus-Per-Page': 'b', 'X-Cantus-Sort': 'c'};
             if (headers[header] !== undefined) {
                 return headers[header];
             } else {
@@ -307,8 +305,8 @@ describe('_loadResponse', function() {
         // expecteds
         let expectedResponse = {'a': 'b', 'sort_order': ['a'], 'resources': 'http'};
         let expectedHeaders = {'version': null, 'include_resources': null, 'fields': null,
-            'extra_fields': null, 'no_xref': null, 'total_results': null, 'page': 'a', 'per_page': 'b',
-            'sort': 'c', 'search_help': 'd'
+            'extra_fields': null, 'no_xref': null, 'total_results': null, 'page': 'a',
+            'per_page': 'b', 'sort': 'c',
         };
         let event = {target: {status: 200, statusText: 'OK', response: responseStr,
                               getResponseHeader: getResponseHeader}};

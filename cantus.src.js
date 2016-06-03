@@ -416,7 +416,6 @@ function _loadResponse(event, resolve, reject) {
                 'page': xhr.getResponseHeader('X-Cantus-Page'),
                 'per_page': xhr.getResponseHeader('X-Cantus-Per-Page'),
                 'sort': xhr.getResponseHeader('X-Cantus-Sort'),
-                'search_help': xhr.getResponseHeader('X-Cantus-Search-Help')
             };
             data['headers'] = headers;
 

@@ -184,7 +184,6 @@ This function returns a Promise. Refer to the description above to know what thi
         'page': '3',
         'per_page': '15',
         'sort': null,
-        'search_help': null
     }
     ```
 
@@ -207,7 +206,6 @@ This function returns a Promise. Refer to the description above to know what thi
           'page': '3',
           'per_page': '15',
           'sort': null,
-          'search_help': null
       }
     }
     ```
