@@ -411,7 +411,6 @@ function _loadResponse(event, resolve, reject) {
                 'include_resources': xhr.getResponseHeader('X-Cantus-Include-Resources'),
                 'fields': xhr.getResponseHeader('X-Cantus-Fields'),
                 'extra_fields': xhr.getResponseHeader('X-Cantus-Extra-Fields'),
-                'no_xref': xhr.getResponseHeader('X-Cantus-No-Xref'),
                 'total_results': xhr.getResponseHeader('X-Cantus-Total-Results'),
                 'page': xhr.getResponseHeader('X-Cantus-Page'),
                 'per_page': xhr.getResponseHeader('X-Cantus-Per-Page'),
