@@ -1,6 +1,6 @@
 {
     "name": "cantus",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "It's a simple JavaScript library for accessing a Cantus API server.",
     "keywords": ["music", "musicology", "mediaeval", "Gregorian chant", "manuscript"],
     "homepage": "https://github.com/CANTUS-Project/cantus-js",
