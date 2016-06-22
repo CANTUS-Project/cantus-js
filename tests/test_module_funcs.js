@@ -90,34 +90,55 @@ describe('_getHateoas()', function() {
 });
 
 describe('_loadHateoas()', function() {
-    let origSubmitAjax;
     beforeEach(() => {
-        origSubmitAjax = CANTUS_MODULE._submitAjax;
+        this.origSubmitAjax = CANTUS_MODULE._submitAjax;
         CANTUS_MODULE._submitAjax = jest.genMockFn();
     });
     afterEach(() => {
-        CANTUS_MODULE._submitAjax = origSubmitAjax;
+        CANTUS_MODULE._submitAjax = this.origSubmitAjax;
     });
 
-    it('properly sets "_hateoas" when everything goes fine', function() {
-        let mockEvent = {'target': {'status': 200, 'response': '{"resources":"surprise!"}'}};
-        let cantus = new CANTUS_MODULE.Cantus('a');
-        cantus._hateoasResolve = jest.genMockFn();
+    it('properly sets "_hateoas" when everything goes fine', () => {
+        const event = {'target': {'status': 200, 'response': '{"resources":"surprise!"}'}};
+        const cantus = new CANTUS_MODULE.Cantus('a');
 
-        cantus._loadHateoas(mockEvent);
+        cantus._loadHateoas(event);
 
-        expect(cantus._hateoasResolve).toBeCalled();
-        expect(cantus._hateoas).toBe('surprise!');
+        return cantus.ready.then(() => {});
     });
 
-    it('properly deals with a return code other than 200', function() {
-        let mockEvent = {'target': {'status': 500}};
-        let cantus = new CANTUS_MODULE.Cantus('a');
-        cantus._hateoasReject = jest.genMockFn();
+    it('properly deals with a return code other than 200', () => {
+        const event = {'target': {'status': 500}};
+        const cantus = new CANTUS_MODULE.Cantus('a');
 
-        cantus._loadHateoas(mockEvent);
+        cantus._loadHateoas(event);
 
-        expect(cantus._hateoasReject).toBeCalled();
+        return cantus.ready.catch((err) => {
+            expect(err.endsWith('500')).toBe(true);
+        });
+    });
+
+    it('rejects the HATEOAS Promise when the response is invalid JSON', () => {
+        const event = {target: {status: 200, response: 'ddddddddd{'}};
+        const cantus = new CANTUS_MODULE.Cantus('a');
+
+        cantus._loadHateoas(event);
+
+        return cantus.ready.catch((err) => {
+            expect(err).toBe('CantusJS: SyntaxError while parsing response from the root URL.');
+        });
+    });
+
+    it('rejects the HATEOAS Promise after another error while parsing the JSON', () => {
+        const event = {target: {status: 200, response: '{"query":"lol"}'}};
+        const cantus = new CANTUS_MODULE.Cantus('a');
+        cantus._hateoasResolve = 5;  // should be a function... setting it to 5 causes the error!
+
+        cantus._loadHateoas(event);
+
+        return cantus.ready.catch((err) => {
+            expect(err.startsWith('TypeError')).toBe(true);
+        });
     });
 });
 

@@ -575,10 +575,10 @@ Cantus.prototype.search = function search(args) {
 // ===============================
 Cantus.prototype._getHateoas = function _getHateoas() {
     // Load the root directory's HATEOAS information, required for other URLs.
-    this._hateoasPromise = new Promise(function(resolve, reject) {
+    this._hateoasPromise = new Promise((resolve, reject) => {
         this._hateoasResolve = resolve;
         this._hateoasReject = reject;
-    }.bind(this));
+    });
     this.ready = this._hateoasPromise;
     cantusModule._submitAjax('GET', this.serverUrl, {args: {}, body: null}, this._loadHateoas);
 };
@@ -591,7 +591,7 @@ Cantus.prototype._loadHateoas = function _loadHateoas(event) {
     else {
         try {
             this._hateoas = JSON.parse(xhr.response).resources;
-            this._hateoasResolve(); // TODO: move the "_hateoas-setting" bit to _hateoasResolve so that this can use _loadResponse()
+            this._hateoasResolve();
         }
         catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
@@ -599,8 +599,7 @@ Cantus.prototype._loadHateoas = function _loadHateoas(event) {
                 this._hateoasReject(errMsg);
             }
             else {
-                this._hateoasReject(possibleError.name);
-                throw possibleError;
+                this._hateoasReject(possibleError.toString());
             }
         }
     }
