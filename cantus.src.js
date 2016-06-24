@@ -373,13 +373,18 @@ function _loadResponse(event, resolve, reject) {
         }
         catch (possibleError) {
             if ('SyntaxError' === possibleError.name) {
-                reject({code: 0, reason: 'internal error',
-                    response: 'CantusJS: SyntaxError while parsing response.'});
+                reject({
+                    code: 0,
+                    reason: 'internal error',
+                    response: 'CantusJS: SyntaxError while parsing response.'
+                });
             }
             else {
-                reject({code: 0, reason: 'internal error',
-                    response: `CantusJS: ${possibleError.name} while parsing response.`});
-                throw possibleError;
+                reject({
+                    code: 0,
+                    reason: 'internal error',
+                    response: `CantusJS: ${possibleError.name} while parsing response.`
+                });
             }
         }
     }

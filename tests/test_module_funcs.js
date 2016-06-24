@@ -371,13 +371,7 @@ describe('_loadResponse', function() {
         let resolveMock = jest.genMockFn();
         let rejectMock = jest.genMockFn();
         let event = {target: {status: 200, statusText: 'OK', response: '{"a":"b}'}};
-        let dumbWrapper = function() {
-            // We need this wrapper function because the expect().toThrow() construct is apparently
-            // so useless that it can't even pass arguments to the function under test.
-            CANTUS_MODULE._loadResponse(event, resolveMock, rejectMock);
-        };
-
-        expect(dumbWrapper).toThrow();
+        CANTUS_MODULE._loadResponse(event, resolveMock, rejectMock);
 
         expect(resolveMock.mock.calls.length).toBe(0);
         expect(rejectMock).toBeCalledWith({code: 0, reason: 'internal error',
