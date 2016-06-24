@@ -27,47 +27,43 @@ jest.dontMock('../cantus.src');
 const CANTUS_MODULE = require('../cantus.src').default;
 
 
-describe('the constructor', function() {
-    let origSubmitAjax;
+describe('the constructor', () => {
+    let origSetServerUrl;
     beforeEach(() => {
-        origSubmitAjax = CANTUS_MODULE._submitAjax;
-        CANTUS_MODULE._submitAjax = jest.genMockFn();
+        origSetServerUrl = CANTUS_MODULE.Cantus.prototype.setServerUrl;
+        CANTUS_MODULE.Cantus.prototype.setServerUrl = jest.genMockFn();
     });
     afterEach(() => {
-        CANTUS_MODULE._submitAjax = origSubmitAjax;
+        CANTUS_MODULE.Cantus.prototype.setServerUrl = origSetServerUrl;
     });
 
-    it('calls setServerUrl(), which calls _getHateoas()', function() {
-        let cantus = new CANTUS_MODULE.Cantus('theserver');
-
-        expect(CANTUS_MODULE._submitAjax).toBeCalledWith('GET', 'theserver', {args: {}, body: null},
-                                                        cantus._loadHateoas);
+    it('calls setServerUrl(), which calls _getHateoas()', () => {
+        const cantus = new CANTUS_MODULE.Cantus('theserver');
+        expect(CANTUS_MODULE.Cantus.prototype.setServerUrl).toBeCalledWith('theserver');
     });
 });
 
-describe('setServerUrl()', function() {
-    let origSubmitAjax;
+describe('setServerUrl()', () => {
+    let origGetHateoas;
     beforeEach(() => {
-        origSubmitAjax = CANTUS_MODULE._submitAjax;
-        CANTUS_MODULE._submitAjax = jest.genMockFn();
+        origGetHateoas = CANTUS_MODULE.Cantus.prototype._getHateoas;
+        CANTUS_MODULE.Cantus.prototype._getHateoas = jest.genMockFn();
     });
     afterEach(() => {
-        CANTUS_MODULE._submitAjax = origSubmitAjax;
+        CANTUS_MODULE.Cantus.prototype._getHateoas = origGetHateoas;
     });
 
     it('calls _getHateoas()', function() {
-        let can = new CANTUS_MODULE.Cantus('asdf');
-        let getHateoas = jest.genMockFunction();
-        can._getHateoas = getHateoas;
+        const can = new CANTUS_MODULE.Cantus('asdf');
 
         can.setServerUrl('something');
 
         expect(can.serverUrl).toBe('something');
-        expect(getHateoas.mock.calls.length).toBe(1);
+        expect(CANTUS_MODULE.Cantus.prototype._getHateoas).toBeCalledWith();
     });
 });
 
-describe('_getHateoas()', function() {
+describe('_getHateoas()', () => {
     let origSubmitAjax;
     beforeEach(() => {
         origSubmitAjax = CANTUS_MODULE._submitAjax;
@@ -77,15 +73,18 @@ describe('_getHateoas()', function() {
         CANTUS_MODULE._submitAjax = origSubmitAjax;
     });
 
-    it('calls _submitAjax() properly', function() {
-        let cantus = new CANTUS_MODULE.Cantus('asdf');
-        cantus.serverUrl = 'something';
-
-        cantus._getHateoas();
-
-        expect(CANTUS_MODULE._submitAjax.mock.calls.length).toBe(2); // first call is during init
-        expect(CANTUS_MODULE._submitAjax).toBeCalledWith('GET', 'something', {args: {}, body: null},
-                                                        cantus._loadHateoas);
+    it('calls _submitAjax() properly', () => {
+        // NB: _getHateoas() is called by the constructor
+        const cantus = new CANTUS_MODULE.Cantus('asdf');
+        expect(CANTUS_MODULE._submitAjax.mock.calls.length).toBe(1);
+        expect(CANTUS_MODULE._submitAjax).toBeCalledWith(
+            'GET',
+            'asdf',
+            {args: {}, body: null},
+            jasmine.any(Function)  // detailed check just below...
+        );
+        // Because of the call to bind() we don't have the exact same function, but this is close!
+        expect(CANTUS_MODULE._submitAjax.mock.calls[0][3].name).toBe('bound _loadHateoas');
     });
 });
 
