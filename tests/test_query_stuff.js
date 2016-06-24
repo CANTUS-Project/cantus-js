@@ -61,9 +61,16 @@ describe('get()', function() {
 
         expect(CANTUS_MODULE._submitAjax.mock.calls.length).toBe(2);
         expect(CANTUS_MODULE._submitAjax).toBeCalledWith(
-            'GET', 'fakeurl', {args: args, body: null}, cantus._loadGet, cantus._errorGet,
-            cantus._abortGet
+            'GET',
+            'fakeurl',
+            {args: args, body: null},
+            jasmine.any(Function),  // detailed check just below...
+            jasmine.any(Function),
+            jasmine.any(Function)
         );
+        expect(CANTUS_MODULE._submitAjax.mock.calls[1][3].name).toBe('bound _loadGet');
+        expect(CANTUS_MODULE._submitAjax.mock.calls[1][4].name).toBe('bound _errorGet');
+        expect(CANTUS_MODULE._submitAjax.mock.calls[1][5].name).toBe('bound _abortGet');
         expect(CANTUS_MODULE._findUrlFromType).toBeCalledWith('chant', cantus._hateoas, true, 'what');
         expect(typeof cantus._getResolve).toBe('function');
         expect(typeof cantus._getReject).toBe('function');
@@ -167,9 +174,16 @@ describe('search()', function() {
         const actual = cantus.search(args);
 
         expect(CANTUS_MODULE._submitAjax).toBeCalledWith(
-            'SEARCH', 'fakeurl', {args: args, body: '{"query":"incipit:deus"}'}, cantus._loadSearch,
-            cantus._errorSearch, cantus._abortSearch
+            'SEARCH',
+            'fakeurl',
+            {args: args, body: '{"query":"incipit:deus"}'},
+            jasmine.any(Function),  // detailed check just below...
+            jasmine.any(Function),
+            jasmine.any(Function)
         );
+        expect(CANTUS_MODULE._submitAjax.mock.calls[1][3].name).toBe('bound _loadSearch');
+        expect(CANTUS_MODULE._submitAjax.mock.calls[1][4].name).toBe('bound _errorSearch');
+        expect(CANTUS_MODULE._submitAjax.mock.calls[1][5].name).toBe('bound _abortSearch');
         expect(CANTUS_MODULE._findUrlFromType).toBeCalledWith('chant', cantus._hateoas, true);
         expect(typeof cantus._searchResolve).toBe('function');
         expect(typeof cantus._searchReject).toBe('function');

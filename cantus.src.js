@@ -520,8 +520,14 @@ Cantus.prototype.get = function get(args) {
                 this._getReject('Unrecoverable error while parsing query');
             }
         }
-        cantusModule._submitAjax('GET', requestUrl, {args: args, body: null}, this._loadGet,
-                                 this._errorGet, this._abortGet);
+        cantusModule._submitAjax(
+            'GET',
+            requestUrl,
+            {args: args, body: null},
+            Cantus.prototype._loadGet.bind(this),
+            Cantus.prototype._errorGet.bind(this),
+            Cantus.prototype._abortGet.bind(this)
+        );
     });
 
     // return the promise
@@ -562,8 +568,14 @@ Cantus.prototype.search = function search(args) {
             }
             return prom;
         }
-        cantusModule._submitAjax('SEARCH', requestUrl, {args: args, body: requestBody},
-                                 this._loadSearch, this._errorSearch, this._abortSearch);
+        cantusModule._submitAjax(
+            'SEARCH',
+            requestUrl,
+            {args: args, body: requestBody},
+            Cantus.prototype._loadSearch.bind(this),
+            Cantus.prototype._errorSearch.bind(this),
+            Cantus.prototype._abortSearch.bind(this)
+        );
     });
 
     // return the promise
@@ -580,7 +592,12 @@ Cantus.prototype._getHateoas = function _getHateoas() {
         this._hateoasReject = reject;
     });
     this.ready = this._hateoasPromise;
-    cantusModule._submitAjax('GET', this.serverUrl, {args: {}, body: null}, this._loadHateoas);
+    cantusModule._submitAjax(
+        'GET',
+        this.serverUrl,
+        {args: {}, body: null},
+        Cantus.prototype._loadHateoas.bind(this)
+    );
 };
 
 Cantus.prototype._loadHateoas = function _loadHateoas(event) {
