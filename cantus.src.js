@@ -194,13 +194,13 @@ function _submitAjax(httpMethod, url, data, loadListener, errorListener, abortLi
     xhr = cantusModule._addRequestHeaders(xhr, data.args);
 
     xhr.addEventListener('load', loadListener);
-    if (undefined !== errorListener) {
+    if (errorListener) {
         xhr.addEventListener('error', errorListener);
     }
-    if (undefined !== abortListener) {
+    if (abortListener) {
         xhr.addEventListener('abort', abortListener);
     }
-    if (null !== data.body) {
+    if (data.body) {
         xhr.send(data.body);
     }
     else {
@@ -596,7 +596,9 @@ Cantus.prototype._getHateoas = function _getHateoas() {
         'GET',
         this.serverUrl,
         {args: {}, body: null},
-        Cantus.prototype._loadHateoas.bind(this)
+        Cantus.prototype._loadHateoas.bind(this),
+        Cantus.prototype._errorHateoas.bind(this),
+        Cantus.prototype._abortHateoas.bind(this)
     );
 };
 
@@ -620,6 +622,14 @@ Cantus.prototype._loadHateoas = function _loadHateoas(event) {
             }
         }
     }
+};
+
+Cantus.prototype._abortHateoas = function _abortHateoas(event) {
+    cantusModule._abortRequest(event, this._hateoasReject);
+};
+
+Cantus.prototype._errorHateoas = function _errorHateoas(event) {
+    cantusModule._errorRequest(event, this._hateoasReject);
 };
 
 Cantus.prototype._loadGet = function _loadGet(event) {

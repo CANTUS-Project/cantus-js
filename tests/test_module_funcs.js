@@ -81,10 +81,14 @@ describe('_getHateoas()', () => {
             'GET',
             'asdf',
             {args: {}, body: null},
-            jasmine.any(Function)  // detailed check just below...
+            jasmine.any(Function),  // detailed check just below...
+            jasmine.any(Function),
+            jasmine.any(Function)
         );
         // Because of the call to bind() we don't have the exact same function, but this is close!
         expect(CANTUS_MODULE._submitAjax.mock.calls[0][3].name).toBe('bound _loadHateoas');
+        expect(CANTUS_MODULE._submitAjax.mock.calls[0][4].name).toBe('bound _errorHateoas');
+        expect(CANTUS_MODULE._submitAjax.mock.calls[0][5].name).toBe('bound _abortHateoas');
     });
 });
 
